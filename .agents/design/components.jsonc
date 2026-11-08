@@ -1,0 +1,25 @@
+{
+  "meta": { "version": 3, "updatedBy": "Brewprint", "note": "Original vintage espresso-bar patterns; see DESIGN.md." },
+  "components": [
+    {
+      "name": "RecipeTile",
+      "note": "Native button with selected border and aria-pressed; browsing does not load the builder.",
+      "root": { "id": "recipe-tile", "el": "button", "layout": { "mode": "vertical", "gap": "3", "padding": "4" }, "appearance": { "background": "paper", "borderColor": "line", "radius": "md" }, "children": ["{name}", "{servingMl} mL", { "id": "recipe-cup", "el": "svg" }] }
+    },
+    {
+      "name": "Cup",
+      "note": "Original SVG cutaway and saucer. Actual volume/capacity fill; textual breakdown alongside.",
+      "root": { "id": "cup", "el": "svg", "appearance": { "color": "ink" } }
+    },
+    {
+      "name": "IngredientTray",
+      "note": "Each draggable ingredient includes a 44px native Add button using the same reducer action as drop.",
+      "root": { "id": "tray", "el": "section", "layout": { "mode": "vertical", "gap": "3" }, "children": ["{label}", { "id": "add", "el": "button", "appearance": { "background": "accent", "color": "accentInk", "radius": "sm" }, "children": ["Add {label}"] }] }
+    },
+    {
+      "name": "Builder",
+      "note": "Fixed 360mL target, ordered layers, polite live status, undo/remove/reset.",
+      "root": { "id": "builder", "el": "section", "layout": { "mode": "vertical", "gap": "5", "padding": "5" }, "appearance": { "background": "surface", "radius": "md" } }
+    }
+  ]
+}

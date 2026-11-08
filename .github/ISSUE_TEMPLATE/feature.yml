@@ -1,0 +1,32 @@
+name: Coffee-bar feature
+description: A bounded feature with an audience-visible result
+title: "[Feature] "
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Audience-visible outcome
+      description: What should a person see or do differently?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Include boundaries, accessibility and failure cases.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and exclusions
+      value: "Preserve the fixed 360mL manual builder. No accounts, database or paid APIs."
+  - type: textarea
+    id: validation
+    attributes:
+      label: Relevant files and validation
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      value: "None; implement from demo-start unless stated otherwise."

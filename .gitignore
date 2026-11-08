@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+**/node_modules/
+src/Brewprint.Api/wwwroot/
+artifacts/
+**/test-results/
+**/playwright-report/
+.vs/
+*.user
+.DS_Store

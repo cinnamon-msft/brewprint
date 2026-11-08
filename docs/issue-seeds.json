@@ -1,0 +1,73 @@
+[
+  {
+    "key": "recipe-scaling",
+    "title": "CLI demo: scale a predefined recipe to a chosen cup size",
+    "labels": ["demo-headline", "surface-cli", "enhancement"],
+    "body": "## Audience-visible outcome\nChoose a predefined drink and a cup size; its ingredient amounts and cutaway diagram adapt.\n\n## Acceptance criteria\n- Add a C# scaling operation/API for predefined recipes only. Keep stable base recipes unchanged.\n- Accept target sizes from 60 through 480 mL inclusive, including non-multiples of 30. Reject non-finite, fractional-mL, out-of-range and malformed inputs with explicit HTTP 400 problem details.\n- Scale all base layers proportionally. Round to integer mL deterministically; the displayed layer amounts must sum exactly to the requested serving. Specify deterministic tie ordering by original assembly order. Do not silently omit positive base ingredients if they round to zero; explain the displayed result.\n- UI offers cup-size choice, handles pending/error states and shows requested total and accurate diagram capacity. An initial base-recipe choice remains unchanged until a size is selected.\n- Preserve base drink browsing and the fixed 360mL manual builder, including its fixed portions and overflow behavior.\n- Cover every predefined recipe, bounds, invalid inputs, awkward totals and repeatability. Include complete accessible UI and browser coverage, not just backend math.\n\n## Scope and exclusions\nNo custom-builder scaling, resizing or persistence. No shot/milk customization dependency. Six predefined recipes only.\n\n## Starting points\nsrc/Brewprint.Api/RecipeCatalog.cs, Program.cs; src/Brewprint.Web/src/api.ts, model.ts, App.tsx, Cup.tsx. Keep scaling logic testable in C#; reuse Cup and the breakdown.",
+    "validation": "`dotnet test Brewprint.sln`; from src/Brewprint.Web: `npm run build`, `npm test`, `npm run test:e2e`. Show a 237mL latte with layer totals exactly 237 and unchanged manual-cup capacity."
+  },
+  {
+    "key": "shots-milk",
+    "title": "Visual Studio demo: customize predefined espresso shots and milk choice",
+    "labels": ["demo-headline", "surface-vs", "enhancement"],
+    "body": "## Audience-visible outcome\nSelect a predefined espresso drink, choose shots and (when applicable) a milk label, then see the validated recipe change.\n\n## Acceptance criteria\n- C# operation/API for 1-4 whole espresso shots inclusive, 30mL illustrative espresso per shot. Reject zero, fractions, >4, non-finite and malformed inputs with HTTP 400 problem details. Unknown recipe ID returns 404.\n- Americano adjusts water; latte/cappuccino/flat white adjust steamed milk to preserve the original serving volume and original foam amount. Reject if the remaining water or steamed milk would be less than 1mL; never clamp or remove a required ingredient.\n- Espresso-only is an explicitly labeled exception: total is 30mL times shots, not a fixed serving. Brewed coffee is not shot-eligible and rejects shot customization.\n- Milk labels are Whole, Oat and Soy. Only recipes with steamed milk/foam allow them; apply the label consistently to milk and foam. Reject unknown labels and milk selection for espresso/americano/brewed coffee. No nutrition, allergy-safety or equivalent-foaming claims.\n- Initial display uses each recipe's existing espresso amount (1 or 2 shots); unmodified base recipe remains unchanged.\n- Add a small complete keyboard-accessible UI, pending/errors and clear disabled/inapplicable explanations. Cover valid combinations and insufficient-volume rejection (e.g. four-shot flat white), API and browser behavior.\n- Manual builder remains fixed-capacity and unchanged. Base RecipeCatalog remains immutable.\n\n## Scope and exclusions\nPredefined recipes only. No scaling dependency; no manual-builder shot editor, nutrition data or database.\n\n## Starting points\nsrc/Brewprint.Api/RecipeCatalog.cs and Program.cs; tests/Brewprint.Api.Tests; src/Brewprint.Web/src/api.ts, model.ts, App.tsx and Cup.tsx.",
+    "validation": "`dotnet test Brewprint.sln`; from src/Brewprint.Web: `npm run build`, `npm test`, `npm run test:e2e`. Demonstrate a two-shot oat latte at 240mL and explicit rejection of a four-shot flat white."
+  },
+  {
+    "key": "ingredient-filter",
+    "title": "VS Code demo: filter the house menu by ingredients",
+    "labels": ["demo-headline", "surface-vscode", "enhancement"],
+    "body": "## Audience-visible outcome\nNarrow the menu to drinks containing every selected ingredient.\n\n## Acceptance criteria\n- Use existing recipe API data, not a duplicate catalog or new backend endpoint.\n- Accessible labeled checkbox controls for all five ingredients, with all-selected (AND) matching. Zero selected shows all six drinks.\n- Reset filters restores all recipes; report the result count and provide a helpful explicit empty state with reset.\n- Handle selected recipe disappearing from the gallery coherently: choose the first visible recipe, or show no recipe detail when no matches; never overwrite the manual build.\n- Keyboard operation, selected states, loading/API errors and responsive layout remain functional.\n- Test espresso+milk, espresso+brewed coffee (no results), zero selections, reset and selection reconciliation. Browser tests exercise controls.\n\n## Scope and exclusions\nNo new API, favorites, saved filters, search, or builder filtering. Independent from all other headline issues.\n\n## Starting points\nsrc/Brewprint.Web/src/App.tsx, model.ts, styles.css; src/Brewprint.Web/e2e/bar.spec.ts. Read DESIGN.md.",
+    "validation": "From src/Brewprint.Web: `npm run build`, `npm test`, `npm run test:e2e`. Show all three milk drinks, then a clear empty state for espresso + brewed coffee."
+  },
+  {
+    "key": "compare-drinks",
+    "title": "Cloud demo: compare two predefined drinks side by side",
+    "labels": ["demo-headline", "surface-cloud", "enhancement"],
+    "body": "## Audience-visible outcome\nCompare two predefined drinks with aligned cutaway cups and a clear ingredient difference breakdown.\n\n## Acceptance criteria\n- Use existing /api/recipes data and reusable Cup; no new backend endpoint or duplicate recipes.\n- Two independently labeled keyboard-accessible selections, each containing all six recipes. Choose sensible defaults (latte and cappuccino).\n- Side-by-side aligned cups use the same 360mL visual capacity, preserving actual fill fraction; stack legibly on narrow screens.\n- Show serving totals, each ingredient amount (zero when absent), and signed right-minus-left mL differences with explicit directional labels. Foam remains illustrative occupied volume.\n- Same drink on both sides is valid, with zero differences and a clear same-selection note.\n- Integrate without replacing the gallery/manual builder. Independent selection must not overwrite a custom cup. Handle API loading/error without silent fallbacks.\n- Unit tests for differences and absent ingredients, browser selection tests, same-drink case, and responsive coverage.\n\n## Scope and exclusions\nPredefined recipes only; no comparison of custom cups, scaling, shot customization or new dependencies unless justified. Does not depend on other demos.\n\n## Starting points\nsrc/Brewprint.Web/src/App.tsx, model.ts, Cup.tsx, styles.css and e2e. Read DESIGN.md and shared Copilot instructions.",
+    "validation": "From src/Brewprint.Web: `npm run build`, `npm test`, `npm run test:e2e`; `dotnet test Brewprint.sln`. Compare latte vs cappuccino, change only the right drink, then choose the same drink twice."
+  },
+  {
+    "key": "base-drink-url",
+    "title": "Backlog: share a selected base drink with a URL",
+    "labels": ["backlog", "enhancement"],
+    "body": "## Acceptance criteria\nUse a stable base recipe ID in a URL query parameter. Direct load and browser back/forward select the intended base drink. Invalid IDs show an explicit notice and a documented safe base selection. Share control copies the URL with success/failure feedback and keyboard support. Loading and API failures remain explicit.\n\n## Scope\nNo custom-builder serialization, accounts, persistence or scaled/customized recipe URLs. Relevant files: App.tsx, api.ts, model.ts, e2e. All existing baseline accessibility must remain intact.",
+    "validation": "From src/Brewprint.Web: `npm run build`, `npm test`, `npm run test:e2e`. Test valid, invalid, missing IDs, clipboard denial and back/forward."
+  },
+  {
+    "key": "print-card",
+    "title": "Backlog: print a clean predefined recipe card",
+    "labels": ["backlog", "enhancement"],
+    "body": "## Acceptance criteria\nA working Print recipe control prints the selected predefined drink with its name, description, ingredient amounts, serving volume, original diagram and educational disclaimer. Hide interactive gallery/builder controls in print. Preserve text contrast, avoid clipped diagrams and fit a normal portrait page. Test print media with a browser.\n\n## Scope\nPredefined base recipes only, no PDF service or dependency, no custom-build storage. Relevant files: App.tsx, Cup.tsx, styles.css, e2e.",
+    "validation": "From src/Brewprint.Web: `npm run build`, `npm test`, `npm run test:e2e`; use Playwright print-media assertions and inspect a browser print preview."
+  },
+  {
+    "key": "theme",
+    "title": "Backlog: add espresso-bar light and dark themes",
+    "labels": ["backlog", "enhancement"],
+    "body": "## Acceptance criteria\nAdd a clearly labeled keyboard-accessible light/dark choice with coherent walnut/ivory/burgundy/brass tokens in DESIGN.md and CSS. All cup ingredients, selected controls, disabled states, text, focus and API errors remain readable in both themes. Respect OS preference initially; browser-local preference may persist with explicit storage failure behavior. Preserve reduced motion and responsive layout.\n\n## Scope\nNo generic theme framework, font CDN or remote assets. Existing light theme remains available. Relevant files: DESIGN.md, styles.css, App.tsx, Cup.tsx.",
+    "validation": "From src/Brewprint.Web: `npm run build`, `npm test`, `npm run test:e2e`. Check both themes, keyboard focus, OS preference and storage denial."
+  },
+  {
+    "key": "text-breakdown",
+    "title": "Backlog: add a dedicated text-first coffee reading mode",
+    "labels": ["backlog", "enhancement"],
+    "body": "## Acceptance criteria\nAdd an optional dedicated text-first reading mode for predefined recipes: description, ordered named ingredients, amounts, total and disclaimer with semantic headings/lists. A labeled control switches views with retained selection and focus. This is an additional reading preference, not a repair for missing baseline accessibility: the starter already includes SVG descriptions, text equivalents, keyboard controls and live feedback.\n\n## Scope\nDo not remove baseline text from the graphical view, change builder behavior or introduce screen-reader detection. Relevant files: App.tsx, styles.css, e2e.",
+    "validation": "From src/Brewprint.Web: `npm run build`, `npm test`, `npm run test:e2e`. Test mode switch, keyboard, recipe changes and both existing text equivalents."
+  },
+  {
+    "key": "rounding-coverage",
+    "title": "Backlog: expand awkward-volume rounding coverage after scaling",
+    "labels": ["backlog", "testing"],
+    "dependsOn": ["recipe-scaling"],
+    "body": "## Acceptance criteria\nAfter predefined recipe scaling exists, add table-driven C# coverage for every integer target from 60 to 480mL across all six recipes, and targeted 61/137/237/479mL browser assertions. Prove exact conservation, deterministic tie handling, nonnegative displayed layers and documented treatment of a positive ingredient rounded to zero. Add regression coverage for bounds and invalid/non-finite values using the scaling API contract.\n\n## Scope\nTests for the scaling feature only, no second scaling implementation or custom-builder changes. Relevant files: tests/Brewprint.Api.Tests and frontend tests/e2e introduced by the prerequisite.",
+    "validation": "`dotnet test Brewprint.sln`; from src/Brewprint.Web: `npm test`, `npm run test:e2e`. Depends explicitly on the CLI scaling issue, unlike the four independent headline demos."
+  },
+  {
+    "key": "favorites",
+    "title": "Backlog: remember favorite predefined drinks in this browser",
+    "labels": ["backlog", "enhancement"],
+    "body": "## Acceptance criteria\nAccessible favorite toggles for six predefined recipes, retained in browser-local storage across reloads. Clearly label local-only persistence; no custom builds saved. Validate stored IDs, handle malformed data and denied/unavailable storage explicitly without crashing, preserve selected recipe and manual build, and offer a working clear-favorites control.\n\n## Scope\nNo accounts, database, sync, sharing or analytics. Relevant files: App.tsx, model.ts and frontend tests/e2e. Gallery must remain fully usable when storage is unavailable.",
+    "validation": "From src/Brewprint.Web: `npm run build`, `npm test`, `npm run test:e2e`. Cover reload, invalid IDs/JSON, denied storage and clear."
+  }
+]
