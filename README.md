@@ -146,3 +146,11 @@ separate rehearsal branches, never in starter `main`.
 
 Original artwork and code are provided under [MIT](LICENSE). Dependencies
 retain their own licenses. No bundled fonts or external media are required.
+
+## Isolated VS Code rehearsal
+
+This branch filters the existing menu API data by all selected ingredients
+(AND). No filters shows all; reset and an explicit empty state are included.
+Selection reconciles to the first matching recipe without overwriting a
+manual cup. Native checkboxes support keyboard operation. No new API or
+persistence. This is local recovery code, not merged into starter main.

@@ -2,7 +2,8 @@ import { useEffect, useReducer, useState } from 'react';
 import { fetchRecipes } from './api';
 import { builderReducer, initialBuilder } from './builder';
 import { Cup } from './Cup';
-import { cupCapacityMl, ingredientIds, ingredients, isIngredientId, mergeLayers, totalMl, type Layer, type Recipe } from './model';
+import { filterRecipes } from './filterRecipes';
+import { cupCapacityMl, ingredientIds, ingredients, isIngredientId, mergeLayers, totalMl, type IngredientId, type Layer, type Recipe } from './model';
 
 function Breakdown({ layers }: { layers: readonly Layer[] }) {
   return <ol className="breakdown" aria-label="Ingredients, bottom to top">
@@ -16,13 +17,15 @@ function Breakdown({ layers }: { layers: readonly Layer[] }) {
 export default function App() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [selectedId, setSelectedId] = useState('latte');
+  const [selectedIngredients, setSelectedIngredients] = useState<IngredientId[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
   const [builder, dispatch] = useReducer(builderReducer, initialBuilder);
   const [dragActive, setDragActive] = useState(false);
   const [overCup, setOverCup] = useState(false);
-  const selected = recipes.find(recipe => recipe.id === selectedId) ?? recipes[0];
+  const visibleRecipes = filterRecipes(recipes, selectedIngredients);
+  const selected = visibleRecipes.find(recipe => recipe.id === selectedId) ?? visibleRecipes[0];
   const filled = totalMl(builder.additions);
   const present = ingredientIds.filter(id => builder.additions.some(layer => layer.ingredient === id));
 
@@ -56,8 +59,23 @@ export default function App() {
         {loading && <p role="status" className="notice">Opening the recipe book...</p>}
         {error && <div role="alert" className="error"><h3>The recipe book couldn’t open.</h3>
           <p>{error}</p><button onClick={() => setAttempt(value => value + 1)}>Retry recipes</button></div>}
+        {!loading && !error && <div className="menu-filters">
+          <fieldset><legend>Contains every selected ingredient</legend>
+            {ingredientIds.map(id => <label key={id}>
+              <input type="checkbox" checked={selectedIngredients.includes(id)} onChange={event =>
+                setSelectedIngredients(current => event.target.checked ? [...current, id] : current.filter(value => value !== id))} />
+              {ingredients[id].name}
+            </label>)}
+          </fieldset>
+          <button disabled={!selectedIngredients.length} onClick={() => setSelectedIngredients([])}>Reset filters</button>
+          <p role="status">{visibleRecipes.length} of {recipes.length} drinks match.</p>
+        </div>}
+        {!loading && !error && visibleRecipes.length === 0 && <div className="notice">
+          <h3>No drinks match these ingredients.</h3><p>Try fewer ingredients, or reset to see the full house menu.</p>
+          <button onClick={() => setSelectedIngredients([])}>Show all drinks</button>
+        </div>}
         {!loading && !error && <div className="recipe-gallery">
-          {recipes.map(recipe => <button className={`recipe-tile ${selected?.id === recipe.id ? 'selected' : ''}`}
+          {visibleRecipes.map(recipe => <button className={`recipe-tile ${selected?.id === recipe.id ? 'selected' : ''}`}
             key={recipe.id} aria-pressed={selected?.id === recipe.id} onClick={() => setSelectedId(recipe.id)}>
             <span className="tile-name">{recipe.name}</span>
             <Cup layers={recipe.layers} capacityMl={cupCapacityMl} label={`${recipe.name} recipe illustration`} />
@@ -81,7 +99,9 @@ export default function App() {
               Use this recipe
             </button>
             <p className="hint">Replaces your current build. Browsing the menu does not.</p>
-          </> : <p>{loading ? 'Loading recipe details...' : 'Retry the recipe book above. You can still build your own cup.'}</p>}
+          </> : <p>{loading ? 'Loading recipe details...' : error ?
+            'Retry the recipe book above. You can still build your own cup.' :
+            'No recipe matches the selected ingredients. Reset filters to read a recipe; your manual cup is unchanged.'}</p>}
         </section>
 
         <section className="builder panel" aria-labelledby="builder-heading">
