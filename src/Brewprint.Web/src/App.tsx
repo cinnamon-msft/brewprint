@@ -2,6 +2,7 @@ import { useEffect, useReducer, useState } from 'react';
 import { fetchRecipes } from './api';
 import { builderReducer, initialBuilder } from './builder';
 import { Cup } from './Cup';
+import { CompareDrinks } from './CompareDrinks';
 import { cupCapacityMl, ingredientIds, ingredients, isIngredientId, mergeLayers, totalMl, type Layer, type Recipe } from './model';
 
 function Breakdown({ layers }: { layers: readonly Layer[] }) {
@@ -139,6 +140,7 @@ export default function App() {
           </div>}
         </section>
       </div>
+      {!loading && !error && <CompareDrinks recipes={recipes} />}
       <section className="legend" aria-label="Ingredient color legend">
         {ingredientIds.map(id => <span key={id}><i className="swatch"
           style={{ background: ingredients[id].color }} aria-hidden="true" />{ingredients[id].name}</span>)}

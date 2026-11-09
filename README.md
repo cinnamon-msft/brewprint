@@ -146,3 +146,12 @@ separate rehearsal branches, never in starter `main`.
 
 Original artwork and code are provided under [MIT](LICENSE). Dependencies
 retain their own licenses. No bundled fonts or external media are required.
+
+## Isolated comparison rehearsal
+
+This branch adds independently selected predefined drink comparisons using
+the existing recipe API. Both diagrams share a 360mL capacity; the table
+lists all five ingredients with signed right-minus-left differences, including
+zero amounts. Same drink on both sides is valid. Narrow screens stack cups.
+The manual builder stays unchanged. This is a **local** recovery checkpoint,
+not a cloud-agent execution result and not merged into starter main.
