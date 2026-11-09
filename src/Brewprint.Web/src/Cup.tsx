@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { ingredients, mergeLayers, totalMl, type Layer } from './model';
+import { ingredientIds, ingredients, mergeLayers, totalMl, type Layer } from './model';
 
 export function Cup({ layers, capacityMl, label }: {
   layers: readonly Layer[]; capacityMl: number; label: string;
@@ -7,42 +7,70 @@ export function Cup({ layers, capacityMl, label }: {
   const id = useId().replace(/:/g, '');
   const merged = mergeLayers(layers);
   let occupied = 0;
-  return (
-    <svg className="cup" viewBox="0 0 320 280" role="img" aria-labelledby={`${id}-title ${id}-desc`}
-      data-capacity={capacityMl} data-filled={totalMl(layers)}>
-      <title id={`${id}-title`}>{label}</title>
-      <desc id={`${id}-desc`}>
-        {totalMl(layers)} of {capacityMl} mL occupied. Bottom to top: {
-          merged.length ? merged.map(layer => `${ingredients[layer.ingredient].name} ${layer.amountMl} mL`).join(', ') : 'empty'
-        }. {capacityMl - totalMl(layers)} mL remaining.
-      </desc>
-      <defs>
-        <clipPath id={`${id}-inside`}><rect x="66" y="36" width="174" height="184" rx="8" /></clipPath>
-        <pattern id={`${id}-foam`} width="12" height="10" patternUnits="userSpaceOnUse">
-          <rect width="12" height="10" fill="var(--foam)" />
-          <circle cx="3" cy="4" r="1.3" fill="var(--line)" />
-          <circle cx="9" cy="8" r="1" fill="var(--line)" />
-        </pattern>
-      </defs>
-      <ellipse cx="157" cy="250" rx="133" ry="17" fill="var(--surface)" stroke="var(--ink)" strokeWidth="3" />
-      <ellipse cx="157" cy="246" rx="98" ry="8" fill="none" stroke="var(--brass)" strokeWidth="2" />
-      <path d="M246 72h20c44 0 44 82 0 82h-20" fill="none" stroke="var(--ink)" strokeWidth="12" />
-      <path d="M246 72h20c44 0 44 82 0 82h-20" fill="none" stroke="var(--paper)" strokeWidth="6" />
-      <rect x="56" y="26" width="194" height="208" rx="14" fill="var(--paper)" stroke="var(--ink)" strokeWidth="4" />
-      <g clipPath={`url(#${id}-inside)`}>
+  return <svg className="cup" viewBox="0 -60 320 340" role="img" aria-labelledby={`${id}-title ${id}-desc`}
+    data-capacity={capacityMl} data-filled={totalMl(layers)}>
+    <title id={`${id}-title`}>{label}</title>
+    <desc id={`${id}-desc`}>{totalMl(layers)} of {capacityMl} mL occupied. Bottom to top: {
+      merged.length ? merged.map(layer => `${ingredients[layer.ingredient].name} ${layer.amountMl} mL`).join(', ') : 'empty'
+    }. {capacityMl - totalMl(layers)} mL remaining.</desc>
+    <defs>
+      <clipPath id={`${id}-inside`}><rect x="66" y="36" width="174" height="184" rx="8" /></clipPath>
+      <linearGradient id={`${id}-glass`} x1="0" y1="0" x2="1" y2="1">
+        <stop stopColor="var(--glass)" stopOpacity=".17" />
+        <stop offset=".45" stopColor="var(--glass)" stopOpacity=".025" />
+        <stop offset="1" stopColor="var(--glass)" stopOpacity=".13" />
+      </linearGradient>
+      <linearGradient id={`${id}-metal`} x1="0" y1="0" x2="0" y2="1">
+        <stop stopColor="var(--glass)" /><stop offset=".35" stopColor="var(--brass)" />
+        <stop offset=".7" stopColor="var(--surface)" /><stop offset="1" stopColor="var(--brass)" />
+      </linearGradient>
+      <linearGradient id={`${id}-shine`}>
+        <stop stopColor="var(--ink)" stopOpacity=".25" />
+        <stop offset="1" stopColor="var(--ink)" stopOpacity="0" />
+      </linearGradient>
+      <radialGradient id={`${id}-shadow`}><stop stopColor="#000" stopOpacity=".65" /><stop offset="1" stopColor="#000" stopOpacity="0" /></radialGradient>
+      {ingredientIds.map(ingredient => <linearGradient key={ingredient} id={`${id}-${ingredient}`}>
+        <stop stopColor={ingredients[ingredient].color} stopOpacity=".76" />
+        <stop offset=".35" stopColor={ingredients[ingredient].color} />
+        <stop offset="1" stopColor={ingredients[ingredient].color} stopOpacity=".83" />
+      </linearGradient>)}
+      <pattern id={`${id}-foam`} width="12" height="10" patternUnits="userSpaceOnUse">
+        <rect width="12" height="10" fill="var(--foam)" />
+        <circle cx="3" cy="4" r="1.3" fill="var(--milk)" />
+        <circle cx="9" cy="8" r="1" fill="var(--milk)" />
+      </pattern>
+    </defs>
+    <ellipse cx="157" cy="264" rx="145" ry="14" fill={`url(#${id}-shadow)`} />
+    <g className="cup-object">
+      <g className="steam" aria-hidden="true">
+        <path className="steam-trail" d="M124 15c-16-20 17-26 3-50" />
+        <path className="steam-trail" d="M157 10c-17-24 18-32 3-59" />
+        <path className="steam-trail" d="M190 15c-14-21 17-28 3-48" />
+      </g>
+      <ellipse cx="157" cy="250" rx="133" ry="15" fill="var(--surface)" stroke={`url(#${id}-metal)`} strokeWidth="2" />
+      <ellipse cx="157" cy="245" rx="106" ry="9" fill={`url(#${id}-glass)`} stroke="var(--brass)" strokeOpacity=".55" />
+      <path d="M246 69h18c44 0 44 84 0 84h-18" fill="none" stroke={`url(#${id}-metal)`} strokeWidth="11" />
+      <path d="M246 69h18c44 0 44 84 0 84h-18" fill="none" stroke="var(--paper)" strokeWidth="5" />
+      <rect x="56" y="26" width="194" height="208" rx="18" fill={`url(#${id}-glass)`} stroke="var(--glass)" strokeOpacity=".65" strokeWidth="2.5" />
+      <g key={label} clipPath={`url(#${id}-inside)`} className="liquid-layers">
         {merged.map((layer, index) => {
           const height = layer.amountMl / capacityMl * 184;
           occupied += height;
-          return <rect key={index} data-layer={layer.ingredient} data-amount={layer.amountMl}
-            x="66" y={220 - occupied} width="174" height={height}
-            fill={layer.ingredient === 'milk-foam' ? `url(#${id}-foam)` : ingredients[layer.ingredient].color}
-            stroke="var(--ink)" strokeWidth="0.8" />;
+          return <g className="pour-layer" key={`${index}-${layer.ingredient}`} style={{ animationDelay: `${index * 90}ms` }}>
+            <rect className="liquid-layer" data-layer={layer.ingredient} data-amount={layer.amountMl}
+              x="66" y={220 - occupied} width="174" height={height}
+              fill={`url(#${id}-${layer.ingredient === 'milk-foam' ? 'foam' : layer.ingredient})`} />
+            <path d={`M66 ${220 - occupied + .5}h174`} stroke="var(--ink)" strokeOpacity=".22" strokeWidth="1" />
+          </g>;
         })}
       </g>
-      <rect x="66" y="36" width="174" height="184" rx="8" fill="none" stroke="var(--line)" strokeWidth="1.5" />
-      <path d="M76 30h153" stroke="var(--brass)" strokeWidth="3" />
-      {[0, 1, 2, 3, 4].map(mark => <path key={mark} d={`M242 ${36 + mark * 46}h9`}
-        stroke="var(--ink)" strokeWidth="2" />)}
-    </svg>
-  );
+      <rect x="66" y="36" width="174" height="184" rx="8" fill="none" stroke="var(--glass)" strokeOpacity=".25" />
+      <path d="M73 44v157q0 13 13 13" fill="none" stroke={`url(#${id}-shine)`} strokeWidth="7" strokeLinecap="round" />
+      <path d="M230 47v148" fill="none" stroke="var(--ink)" strokeOpacity=".08" strokeWidth="3" strokeLinecap="round" />
+      <ellipse cx="153" cy="32" rx="90" ry="6" fill="none" stroke="var(--glass)" strokeWidth="1.5" strokeOpacity=".75" />
+      <path d="M86 232h134" stroke="var(--glass)" strokeWidth="3" strokeOpacity=".35" strokeLinecap="round" />
+      {[0, 1, 2, 3, 4].map(mark => <path key={mark} d={`M240 ${36 + mark * 46}h8`}
+        stroke="var(--glass)" strokeOpacity=".5" strokeWidth="1" />)}
+    </g>
+  </svg>;
 }

@@ -45,8 +45,8 @@
     "key": "theme",
     "title": "Backlog: add espresso-bar light and dark themes",
     "labels": ["backlog", "enhancement"],
-    "body": "## Acceptance criteria\nAdd a clearly labeled keyboard-accessible light/dark choice with coherent walnut/ivory/burgundy/brass tokens in DESIGN.md and CSS. All cup ingredients, selected controls, disabled states, text, focus and API errors remain readable in both themes. Respect OS preference initially; browser-local preference may persist with explicit storage failure behavior. Preserve reduced motion and responsive layout.\n\n## Scope\nNo generic theme framework, font CDN or remote assets. Existing light theme remains available. Relevant files: DESIGN.md, styles.css, App.tsx, Cup.tsx.",
-    "validation": "From src/Brewprint.Web: `npm run build`, `npm test`, `npm run test:e2e`. Check both themes, keyboard focus, OS preference and storage denial."
+    "body": "## Acceptance criteria\nAdd a clearly labeled keyboard-accessible light/dark choice with coherent walnut/ivory/burgundy/brass tokens in DESIGN.md and CSS. All cup ingredients, selected controls, disabled states, text, focus and API errors remain readable in both themes. Keep dark as the initial default on current main; browser-local explicit preference may persist with explicit storage failure behavior. Preserve reduced motion and responsive layout.\n\n## Scope\nNo generic theme framework, font CDN or remote assets. Current main is the default-dark single-cup starter; demo-start retains the original light gallery. Preserve the composition of the chosen baseline and add the missing alternate theme, not another layout redesign. Relevant files: DESIGN.md, styles.css, App.tsx, Cup.tsx.",
+    "validation": "From src/Brewprint.Web: `npm run build`, `npm test`, `npm run test:e2e`. Check both themes, keyboard focus, dark default regardless of OS preference, explicit selection and storage denial."
   },
   {
     "key": "text-breakdown",

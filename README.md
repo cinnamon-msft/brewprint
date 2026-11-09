@@ -2,7 +2,7 @@
 
 **The illustrated espresso bar.** Explore six coffee classics and build a cup
 from espresso, brewed coffee, water, steamed milk and foam. Original cutaway SVG
-cups, a vintage walnut/ivory/burgundy/brass theme, and no accounts, database,
+cup, an elegant dark walnut/ivory/burgundy/brass theme, and no accounts, database,
 paid APIs or embedded AI.
 
 Built for [GitHub Copilot Everywhere: CLI, VS Code, Visual Studio, and the Cloud](https://live360events.com/events/orlando-2026/sessions/wednesday/aiw02-github-copilot.aspx).
@@ -69,6 +69,19 @@ Unknown API routes and drink IDs return JSON problem details, never the SPA.
 The six immutable base servings are espresso 30, americano 180, latte 240,
 cappuccino 180, flat white 165, and brewed coffee 240 mL.
 
+## One cup, two ways to explore
+
+The default dark experience centers one animated glass cup. Choose a drink
+from the house menu below it to update its ingredient layers, description and
+text breakdown. There are no repeated cup thumbnails. Pours, glass highlights
+and steam are decorative; reduced motion shows accurate final geometry
+immediately. Pointer/touch selection brings an offscreen cup into view so the
+updated drink is visible; keyboard selection retains focus on its menu button.
+
+**Build your own** switches that same cup to your custom build and reveals the
+ingredient tray. **House menu** or any drink choice returns to recipe viewing,
+without overwriting the custom build. Switching back restores it.
+
 ## Build your cup
 
 Drag a tray ingredient into the cup, or use a labeled Add button with keyboard
@@ -78,7 +91,8 @@ with unused space visible. Additions stack bottom-to-top in assembly order;
 only adjacent matching layers merge visually. Undo removes the last whole
 addition; Remove removes all occurrences of that ingredient; Reset empties it.
 
-Browsing never changes your build. **Use this recipe** explicitly replaces it.
+Browsing updates the recipe cup, never your custom build. **Use this recipe**
+explicitly replaces the custom build and enters Build your own.
 Overflow is announced and rejected without mutation. Builds remain in memory
 and disappear on reload. Named layer breakdowns, SVG descriptions, visible
 focus, native buttons, live feedback and reduced-motion support are baseline.
@@ -131,6 +145,12 @@ Do not run two seeders concurrently. The four headline issues are independent
 from `demo-start`; only awkward-volume rounding coverage depends on scaling.
 Keep issues open during preparation. Feature recovery checkpoints belong on
 separate rehearsal branches, never in starter `main`.
+
+`main` now includes the default-dark, single-cup redesign. The published
+`demo-start` tag and four recovery branches retain the original gallery-based
+starter, so their existing rehearsal evidence remains reproducible. Use `main`
+for the updated presentation; use `demo-start` for the original rehearsed flow.
+The four headline capabilities remain unimplemented on both starter versions.
 
 ## Repository map
 

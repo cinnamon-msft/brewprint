@@ -5,6 +5,16 @@ Start every independent feature from **demo-start**, not another feature
 branch. The starter is already a working gallery/manual builder, so each
 demo produces a genuine new audience-visible capability.
 
+**Presentation update:** `main` now has the elegant default-dark, single-cup
+experience. Choose a house drink below the cup to animate its layers;
+**Build your own** switches that same cup to the preserved custom build.
+**Use this recipe** explicitly replaces the custom build. The published
+`demo-start` tag and recovery branches intentionally retain the original
+gallery UI and its tested feature slices. Use `main` to show the redesigned
+app; the commands and recovery evidence below still describe the original
+independent rehearsals. Applying features to the new composition requires a
+fresh rehearsal, not a claim that the old checkpoints contain the redesign.
+
 ## Real issues
 
 | Surface | Issue | Visible result | Dependency |

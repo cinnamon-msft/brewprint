@@ -2,10 +2,35 @@
 
 Verified on **2026-11-08**. The public starter is commit
 [`befbe46a407f4ec9d5f80e1c3f538b0f8b9b311b`](https://github.com/cinnamon-msft/brewprint/commit/befbe46a407f4ec9d5f80e1c3f538b0f8b9b311b),
-tag **demo-start**. Later main commits only update rehearsal documentation
-and the numerical example in seed definitions; starter source is unchanged.
-The tag retains the original pre-rehearsal notes; this report on main is the
-current preparation record.
+tag **demo-start**. That tag and the independent recovery checkpoints remain
+unchanged. `main` subsequently received the default-dark, single-cup redesign
+described below. The original evidence remains historical and reproducible;
+it does not establish that feature recovery slices have been ported to the
+new composition.
+
+## Single-cup redesign on main
+
+One original animated glass cup now serves House menu and Build your own.
+Six native recipe choices sit below the display; browsing preserves the
+custom build, and explicit recipe load switches to the builder. The midnight
+palette defaults dark regardless of the operating-system preference.
+Staggered layer pours, steam and glass arrival respect reduced motion.
+
+Strict TypeScript/production build, all 24 frontend unit tests and all 9 API
+tests passed. The redesigned Chromium suite has 9 scenarios covering the
+single centered cup and every recipe total, native mouse dragging with drag
+feedback, keyboard/touch equivalents, preserved custom state, capacity and
+overflow, undo/removal/reset, memory-only reload, API failures/retry/malformed
+data, actual intermediate animation geometry, reduced motion and responsive
+desktop/mobile compositions. Native dragging starts on the tray before the
+test scrolls the destination into view; no synthetic drag events are used.
+All 9 scenarios also passed against the Release-published, single-origin
+ASP.NET app on port 5080, with API health and built frontend assets served
+successfully. Updated desktop, builder and mobile screenshots were inspected.
+
+The historical four feature branches below still use the original starter.
+They are not new-design recovery checkpoints; no headline feature was merged
+into main.
 
 ## Starter evidence
 

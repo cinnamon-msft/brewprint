@@ -1,24 +1,26 @@
 ---
 version: alpha
 name: Brewprint
-description: An original vintage espresso bar for learning how coffee drinks are assembled.
+description: An elegant midnight espresso bar centered on one animated cutaway cup.
 colors:
-  ink: "#38251f"
-  paper: "#fff8e9"
-  surface: "#f5ead6"
-  muted: "#69534a"
-  line: "#bfa582"
-  accent: "#742c39"
-  accentInk: "#fff8e9"
-  brass: "#ad8040"
-  espresso: "#502c20"
-  coffee: "#855237"
-  water: "#a8d8de"
-  milk: "#efdab0"
-  foam: "#fffdf6"
+  ink: "#f3e7d3"
+  paper: "#14110f"
+  surface: "#221b16"
+  muted: "#baaa96"
+  line: "#514237"
+  accent: "#dfb77b"
+  accentInk: "#1c1510"
+  brass: "#b48c54"
+  burgundy: "#693442"
+  glass: "#d5b584"
+  espresso: "#754529"
+  coffee: "#a16c43"
+  water: "#86b8be"
+  milk: "#efd3a3"
+  foam: "#fff0d5"
 typography:
-  display: { fontFamily: 'Georgia, Cambria, serif', fontSize: 64px, lineHeight: 68px, fontWeight: 700 }
-  title: { fontFamily: 'Georgia, Cambria, serif', fontSize: 36px, lineHeight: 42px, fontWeight: 700 }
+  display: { fontFamily: 'Georgia, Cambria, serif', fontSize: 64px, lineHeight: 70.4px, fontWeight: 400 }
+  title: { fontFamily: 'Georgia, Cambria, serif', fontSize: 28px, lineHeight: 35px, fontWeight: 400 }
   body: { fontFamily: 'system-ui, sans-serif', fontSize: 18px, lineHeight: 27px }
   small: { fontFamily: 'system-ui, sans-serif', fontSize: 16px, lineHeight: 24px }
 spacing: { "1": 4px, "2": 8px, "3": 12px, "4": 16px, "5": 24px, "6": 32px, "7": 48px, "8": 64px }
@@ -27,20 +29,27 @@ rounded: { sm: 8px, md: 16px, pill: 999px }
 
 # Brewprint espresso bar
 
-Walnut tones, warm ivory, burgundy signage and brass rules. The star is an
-original SVG cutaway cup on a saucer, not a generic dashboard. System serif
-headings and high-contrast system sans-serif text are readable on a projector.
-No font CDNs, stock assets, or third-party image dependencies.
+Default dark: near-black walnut, warm ivory lettering, restrained burgundy and
+brass. One original glass cutaway cup is centered in a softly lit scene; drink
+choices sit directly beneath it. No repeating cup thumbnails or dashboard
+panels. System serif headings and system sans-serif body text. No font CDNs,
+stock assets, or third-party image dependencies.
 
 ## Components
 
 Patterns live in `.agents/design/components.jsonc`.
 
-- Cup: original SVG with a constant interior height. Each layer's height is
+- Cup: original SVG with glass reflections, a brass-edged saucer and steam.
+  Constant interior height. Each layer's height is
   its amount divided by the declared capacity. Leave unused space visible.
-  Adjacent ingredient names and amounts are the text equivalent.
-- Recipe tile: native button, `aria-pressed`, selected border and text cue.
-  Browsing never changes the builder. Only "Use this recipe" does that.
+  Ingredient chips beneath the cup are the text equivalent.
+- Recipe choice: native button, `aria-pressed`, selected border and text cue;
+  name and amount, no miniature cup. Clicking updates the central recipe cup.
+  Pointer/touch selection brings an offscreen cup back into view; keyboard
+  selection retains the user's place and announces the selected recipe.
+- Mode switch: House menu / Build your own, two native pressed-state buttons.
+  Both modes share the single central cup. Browsing shows recipes but preserves
+  the custom build in memory; only "Use this recipe" replaces that build.
 - Tray: draggable ingredients with clearly labeled equivalent Add buttons.
 - Builder: prominent labeled drop zone, visible drag feedback, polite live
   announcements, ingredient removal, undo last addition and reset.
@@ -48,12 +57,23 @@ Patterns live in `.agents/design/components.jsonc`.
 
 ## Layout and accessibility
 
-Responsive two-column workbench, six-drink gallery, 44px minimum targets,
-3px offset focus rings. Color never replaces labels. Body 18px, minimum UI
+Centered single-column experience, six choices below the cup (wrapping to two
+columns on phones), 44px minimum targets and 3px offset focus rings.
+Color never replaces labels. Body 18px, minimum UI
 text 16px. Cup line art may scale, with full-size text outside the SVG.
-Desktop maximum width 1440px. Panels use 16px corners, controls 8px.
+Desktop maximum content width 1080px. Controls use 8px corners; mode switch
+uses pill corners. SVG geometry and its scenic halo are original illustration,
+not layout spacing tokens.
 Use the spacing scale above; decorative borders may use 1-3px.
 
-Reduced motion disables transitions; no essential animation. Foam represents
+## Motion
+
+Layer pours use 620ms eased reveals, staggered by 90ms in assembly order.
+Existing layer geometry transitions over 700ms; glass reflections and gently
+drifting steam are decorative. Never animate volume by normalizing a cup to
+full. Reduced motion disables all animations/transitions and retains the final
+accurate geometry immediately. No animation blocks clicking or keyboard use.
+
+Foam represents
 illustrative occupied volume, not liquid yield. Layers represent assembly
 order, not density or fluid simulation.

@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import { fetchRecipes } from './api';
 import { builderReducer, initialBuilder } from './builder';
 import { Cup } from './Cup';
@@ -16,21 +16,32 @@ function Breakdown({ layers }: { layers: readonly Layer[] }) {
 export default function App() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [selectedId, setSelectedId] = useState('latte');
+  const [mode, setMode] = useState<'recipe' | 'builder'>('recipe');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
   const [builder, dispatch] = useReducer(builderReducer, initialBuilder);
   const [dragActive, setDragActive] = useState(false);
   const [overCup, setOverCup] = useState(false);
+  const cupScene = useRef<HTMLDivElement>(null);
   const selected = recipes.find(recipe => recipe.id === selectedId) ?? recipes[0];
-  const filled = totalMl(builder.additions);
+  const ready = !loading && !error && selected !== undefined;
+  const layers = mode === 'builder' ? builder.additions : ready ? selected.layers : [];
+  const filled = totalMl(layers);
   const present = ingredientIds.filter(id => builder.additions.some(layer => layer.ingredient === id));
+
+  function changeMode(next: 'recipe' | 'builder') {
+    setMode(next);
+    setDragActive(false);
+    setOverCup(false);
+  }
 
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
     setError('');
     fetchRecipes(controller.signal).then(data => {
+      if (controller.signal.aborted) return;
       setRecipes(data);
       setLoading(false);
     }).catch((reason: unknown) => {
@@ -42,111 +53,136 @@ export default function App() {
   }, [attempt]);
 
   return <>
-    <a className="skip-link" href="#workbench">Skip to coffee builder</a>
+    <a className="skip-link" href="#workbench">Skip to cup display</a>
     <header className="masthead">
-      <div className="brand-mark" aria-hidden="true">B</div>
-      <div><p className="eyebrow">The illustrated espresso bar</p><h1>Brewprint<span>.</span></h1></div>
-      <p className="header-note">A little coffee knowledge.<br />A cup of your own.</p>
+      <a className="wordmark" href="/" aria-label="Brewprint home">Brewprint<span aria-hidden="true">.</span></a>
+      <span className="header-note">THE MIDNIGHT ESPRESSO BAR</span>
+      <span className="header-edition">EST. 2026</span>
     </header>
     <main>
-      <section className="gallery-section" aria-labelledby="menu-heading">
-        <div className="section-heading"><div><p className="eyebrow">01 / The house menu</p>
-          <h2 id="menu-heading">Every drink has a story.</h2></div>
-          <p>Choose a classic to see what goes into it.</p></div>
-        {loading && <p role="status" className="notice">Opening the recipe book...</p>}
-        {error && <div role="alert" className="error"><h3>The recipe book couldn’t open.</h3>
-          <p>{error}</p><button onClick={() => setAttempt(value => value + 1)}>Retry recipes</button></div>}
-        {!loading && !error && <div className="recipe-gallery">
-          {recipes.map(recipe => <button className={`recipe-tile ${selected?.id === recipe.id ? 'selected' : ''}`}
-            key={recipe.id} aria-pressed={selected?.id === recipe.id} onClick={() => setSelectedId(recipe.id)}>
-            <span className="tile-name">{recipe.name}</span>
-            <Cup layers={recipe.layers} capacityMl={cupCapacityMl} label={`${recipe.name} recipe illustration`} />
-            <span className="tile-footer"><span>{recipe.servingMl} mL</span>
-              <span>{selected?.id === recipe.id ? 'Selected' : 'Explore'}</span></span>
+      <div className="mode-switch" role="group" aria-label="Cup mode">
+        <button aria-pressed={mode === 'recipe'} onClick={() => changeMode('recipe')}>House menu</button>
+        <button aria-pressed={mode === 'builder'} onClick={() => changeMode('builder')}>Build your own</button>
+      </div>
+
+      <section className={`experience ${mode === 'builder' ? 'is-building' : ''}`} id="workbench" tabIndex={-1} aria-labelledby="cup-heading">
+        <div className="drink-heading">
+          <p className="eyebrow">{mode === 'builder' ? 'A little imagination. Your own creation.' : 'Coffee, beautifully deconstructed.'}</p>
+          <h1 id="cup-heading">{mode === 'builder' ? 'Your signature cup.' : ready ? selected.name : 'The house menu.'}</h1>
+          <p className="drink-description">{mode === 'builder'
+            ? 'Start with a shot. Add a little silk. Make it yours.'
+            : ready ? selected.description : 'Six classics. One cup. A closer look at what goes inside.'}</p>
+        </div>
+        <div ref={cupScene} className={`cup-scene ${mode === 'builder' ? 'drop-zone' : ''} ${dragActive ? 'drag-active' : ''} ${overCup ? 'drag-over' : ''}`}
+          role="region" aria-label={mode === 'builder' ? 'Cup drop target' : 'Selected drink display'}
+          data-testid="cup-drop-target"
+          onDragOver={mode === 'builder' ? event => {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'copy';
+            setOverCup(true);
+          } : undefined}
+          onDragLeave={event => {
+            if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) setOverCup(false);
+          }}
+          onDrop={mode === 'builder' ? event => {
+            event.preventDefault();
+            setDragActive(false);
+            setOverCup(false);
+            const id = event.dataTransfer.getData('application/x-brewprint-ingredient');
+            if (isIngredientId(id)) dispatch({ type: 'add', ingredient: id });
+            else dispatch({ type: 'reject', message: 'Drop an ingredient from the tray, or use an Add button. Your cup is unchanged.' });
+          } : undefined}>
+          <div className="scene-halo" aria-hidden="true" />
+          <span className="scene-caption">{mode === 'builder' ? overCup ? 'Release to pour' : 'Drag ingredients into your cup' : 'THE ANATOMY OF A CLASSIC'}</span>
+          <Cup layers={layers} capacityMl={cupCapacityMl}
+            label={mode === 'builder' ? 'Your custom coffee build' : ready ? `${selected.name}: ingredient layers` : 'Empty cup, recipes unavailable'} />
+          <span className="capacity-mark">360 mL <span>cutaway glass</span></span>
+        </div>
+        <div className="cup-readout">
+          <p className="fill-reading" data-testid="fill-reading"><strong>{filled}</strong><span> / 360 mL</span></p>
+          <span className="remaining">{cupCapacityMl - filled} mL of room to play</span>
+        </div>
+        <Breakdown layers={layers} />
+        {mode === 'recipe' && ready && <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          Selected {selected.name}, {selected.servingMl} mL. Ingredients, bottom to top: {
+            selected.layers.map(layer => `${ingredients[layer.ingredient].name} ${layer.amountMl} mL`).join(', ')
+          }.
+        </p>}
+      </section>
+
+      {mode === 'builder' && <section className="builder" aria-labelledby="builder-heading">
+        <div className="section-heading"><span className="section-rule" aria-hidden="true" />
+          <h2 id="builder-heading">A palette for your palate.</h2><span className="section-rule" aria-hidden="true" /></div>
+        <p className="builder-intro">Drag to pour, or use Add. Fixed portions, layered bottom to top in assembly order.</p>
+        <div className="ingredient-tray" aria-label="Ingredient tray">
+          {ingredientIds.map(id => <div key={id} className="ingredient" draggable data-testid={`tray-${id}`}
+            onDragStart={event => {
+              event.dataTransfer.setData('application/x-brewprint-ingredient', id);
+              event.dataTransfer.effectAllowed = 'copy';
+              setDragActive(true);
+            }}
+            onDragEnd={() => { setDragActive(false); setOverCup(false); }}>
+            <span className="swatch" style={{ background: ingredients[id].color }} aria-hidden="true" />
+            <strong>{ingredients[id].name}</strong>
+            <span className="portion">{ingredients[id].portionMl} mL{id === 'milk-foam' ? ' occupied' : ''}</span>
+            <button aria-label={`Add ${ingredients[id].name}`} onClick={() => dispatch({ type: 'add', ingredient: id })}>Add</button>
+          </div>)}
+        </div>
+        <div className="builder-status" role="status" aria-live="polite" aria-atomic="true">
+          <span key={builder.revision}>{builder.message}</span>
+        </div>
+        <div className="builder-actions">
+          <button disabled={!builder.additions.length} onClick={() => dispatch({ type: 'undo' })}>Undo last addition</button>
+          <button disabled={!builder.additions.length} onClick={() => dispatch({ type: 'reset' })}>Reset cup</button>
+        </div>
+        {present.length > 0 && <div className="remove-actions" aria-label="Remove ingredients">
+          {present.map(id => <button key={id} onClick={() => dispatch({ type: 'remove', ingredient: id })}>
+            Remove {ingredients[id].name}
           </button>)}
+        </div>}
+      </section>}
+
+      <section className="gallery-section" aria-labelledby="menu-heading">
+        <div className="section-heading"><span className="section-rule" aria-hidden="true" />
+          <h2 id="menu-heading">Find your favorite.</h2><span className="section-rule" aria-hidden="true" /></div>
+        {loading && <p role="status" className="notice">Opening the recipe book...</p>}
+        {error && <div role="alert" className="error"><h3>The recipe book couldn't open.</h3>
+          <p>{error}</p><button onClick={() => setAttempt(value => value + 1)}>Retry recipes</button>
+          <p className="hint">You can still use Build your own without the recipe API.</p></div>}
+        {ready && <div className="recipe-gallery" role="group" aria-label="Choose a drink">
+          {recipes.map((recipe, index) => {
+            const active = mode === 'recipe' && selected.id === recipe.id;
+            return <button className={`recipe-tile ${active ? 'selected' : ''}`} key={recipe.id}
+              data-testid={`recipe-${recipe.id}`} aria-pressed={active}
+              aria-label={`${recipe.name}, ${recipe.servingMl} mL${active ? ', selected' : ''}`}
+              onClick={event => {
+                setSelectedId(recipe.id);
+                changeMode('recipe');
+                const scene = cupScene.current;
+                const bounds = scene?.getBoundingClientRect();
+                if (event.detail > 0 && scene && bounds && (bounds.top < 0 || bounds.bottom > window.innerHeight)) {
+                  scene.scrollIntoView({ block: 'center',
+                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+                }
+              }}>
+              <span className="recipe-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <span className="tile-name">{recipe.name}</span>
+              <span className="tile-footer"><span>{recipe.servingMl} mL</span>
+                <span className="selection-dot" aria-hidden="true">{active ? '\u25CF' : '\u25CB'}</span></span>
+            </button>;
+          })}
+        </div>}
+        {mode === 'recipe' && ready && <div className="recipe-load">
+          <button className="primary" onClick={() => { dispatch({ type: 'load', recipe: selected }); changeMode('builder'); }}>
+            Use this recipe
+          </button>
+          <p className="hint">Make it your starting point. Replaces your custom build; browsing never does.</p>
         </div>}
       </section>
 
-      <div className="workbench" id="workbench" tabIndex={-1}>
-        <section className="recipe-detail panel" aria-labelledby="recipe-heading">
-          <p className="eyebrow">02 / Behind the drink</p>
-          <h2 id="recipe-heading">{selected && !error ? selected.name : 'The recipe book'}</h2>
-          {selected && !error && !loading ? <>
-            <p>{selected.description}</p>
-            <div className="detail-cup"><Cup layers={selected.layers} capacityMl={cupCapacityMl}
-              label={`${selected.name}: ingredient layers`} /></div>
-            <p className="volume-note">{selected.servingMl} mL serving / shown in a 360 mL cup</p>
-            <Breakdown layers={selected.layers} />
-            <button className="primary wide" onClick={() => dispatch({ type: 'load', recipe: selected })}>
-              Use this recipe
-            </button>
-            <p className="hint">Replaces your current build. Browsing the menu does not.</p>
-          </> : <p>{loading ? 'Loading recipe details...' : 'Retry the recipe book above. You can still build your own cup.'}</p>}
-        </section>
-
-        <section className="builder panel" aria-labelledby="builder-heading">
-          <div className="builder-heading"><div><p className="eyebrow">03 / Make it yours</p>
-            <h2 id="builder-heading">Build a cup.</h2></div><span className="capacity-badge">360 mL cup</span></div>
-          <p>Drag an ingredient into the cup, or use its Add button. Layers stack in the order you add them.</p>
-          <div className="assembly">
-            <div className="ingredient-tray" aria-label="Ingredient tray">
-              {ingredientIds.map(id => <div key={id} className="ingredient" draggable
-                data-testid={`tray-${id}`} onDragStart={event => {
-                  event.dataTransfer.setData('application/x-brewprint-ingredient', id);
-                  event.dataTransfer.effectAllowed = 'copy';
-                  setDragActive(true);
-                }} onDragEnd={() => { setDragActive(false); setOverCup(false); }}>
-                <span className="swatch" style={{ background: ingredients[id].color }} aria-hidden="true" />
-                <div><strong>{ingredients[id].name}</strong><span className="portion">
-                  {ingredients[id].portionMl} mL{id === 'milk-foam' ? ' occupied' : ''}</span></div>
-                <button aria-label={`Add ${ingredients[id].name}`} onClick={() => dispatch({ type: 'add', ingredient: id })}>Add</button>
-              </div>)}
-            </div>
-            <div className={`drop-zone ${dragActive ? 'drag-active' : ''} ${overCup ? 'drag-over' : ''}`}
-              role="region" aria-label="Cup drop target" data-testid="cup-drop-target"
-              onDragOver={event => {
-                event.preventDefault();
-                event.dataTransfer.dropEffect = 'copy';
-                setOverCup(true);
-              }} onDragLeave={event => {
-                if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOverCup(false);
-              }} onDrop={event => {
-                event.preventDefault();
-                setDragActive(false);
-                setOverCup(false);
-                const id = event.dataTransfer.getData('application/x-brewprint-ingredient');
-                if (isIngredientId(id)) dispatch({ type: 'add', ingredient: id });
-                else dispatch({ type: 'reject', message: 'Drop an ingredient from the tray, or use an Add button. Your cup is unchanged.' });
-              }}>
-              <span className="drop-label">{overCup ? 'Release to add' : 'Your cutaway cup'}</span>
-              <Cup layers={builder.additions} capacityMl={cupCapacityMl} label="Your custom coffee build" />
-              <strong className="fill-reading" data-testid="fill-reading">{filled} / 360 mL</strong>
-              <span>{cupCapacityMl - filled} mL remaining</span>
-            </div>
-          </div>
-          <div className="builder-status" role="status" aria-live="polite" aria-atomic="true">
-            <span key={builder.revision}>{builder.message}</span>
-          </div>
-          <div className="builder-actions">
-            <button disabled={!builder.additions.length} onClick={() => dispatch({ type: 'undo' })}>Undo last addition</button>
-            <button disabled={!builder.additions.length} onClick={() => dispatch({ type: 'reset' })}>Reset cup</button>
-          </div>
-          {builder.additions.length > 0 && <div className="custom-breakdown">
-            <h3>Your layers <span className="hint">(bottom to top)</span></h3>
-            <Breakdown layers={builder.additions} />
-            <div className="remove-actions">{present.map(id => <button key={id}
-              onClick={() => dispatch({ type: 'remove', ingredient: id })}>Remove {ingredients[id].name}</button>)}</div>
-          </div>}
-        </section>
-      </div>
-      <section className="legend" aria-label="Ingredient color legend">
-        {ingredientIds.map(id => <span key={id}><i className="swatch"
-          style={{ background: ingredients[id].color }} aria-hidden="true" />{ingredients[id].name}</span>)}
-      </section>
+      <p className="schematic-note">A glass of knowledge, not a fluid simulation. Foam is illustrative occupied volume.</p>
     </main>
-    <footer><strong>Good coffee. Clear ingredients.</strong>
-      <p>Educational schematics, not barista specifications. Recipes vary by café. Foam is illustrative occupied volume,
-        not liquid yield; layers show assembly order, not fluid physics. Your custom cup stays in memory only.</p>
-      <span>Brewprint / Est. 2026</span></footer>
+    <footer><span className="footer-brand">Brewprint.</span><p>Recipes vary by cafe. Educational schematics, not barista specifications.
+      Layers show assembly order, not fluid physics. Custom cups stay in memory only.</p><span>CRAFTED FOR CURIOSITY</span></footer>
   </>;
 }

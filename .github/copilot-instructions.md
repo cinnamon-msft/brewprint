@@ -11,7 +11,8 @@ system fonts. No accounts, database, paid APIs or embedded AI.
 - `src/Brewprint.Web/src/model.ts`: typed ingredients, portions and layers.
 - `src/Brewprint.Web/src/builder.ts`: pure fixed-capacity assembly reducer.
 - `src/Brewprint.Web/src/Cup.tsx`: actual fill fraction, reusable schematic.
-- `src/Brewprint.Web/src/App.tsx`: menu, selected recipe, manual builder.
+- `src/Brewprint.Web/src/App.tsx`: one central cup shared by House menu and
+  Build your own, with drink choices beneath it.
 - `tests/Brewprint.Api.Tests`: xUnit API integration tests.
 - `src/Brewprint.Web/e2e`: real browser drag/drop and keyboard tests.
 
@@ -19,6 +20,9 @@ The manual builder stays at 360mL with fixed portions. Gallery selection must
 not overwrite a custom build. Predefined recipe enhancements must not silently
 change the builder. Foam is illustrative occupied volume, not liquid yield.
 Layers represent assembly order, not fluid simulation.
+The current starter defaults to dark. Preserve its single-cup composition and
+reduced-motion behavior unless the assigned feature explicitly needs another
+display (such as side-by-side comparison).
 
 ## Working agreement
 
