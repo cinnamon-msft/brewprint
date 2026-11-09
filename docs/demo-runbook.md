@@ -10,7 +10,7 @@ demo produces a genuine new audience-visible capability.
 | Surface | Issue | Visible result | Dependency |
 | --- | --- | --- | --- |
 | CLI | [Scale predefined recipes](https://github.com/cinnamon-msft/brewprint/issues/8) | A 237mL latte with conserved rounded amounts | None |
-| Visual Studio | [Shots and milk](https://github.com/cinnamon-msft/brewprint/issues/2) | Two-shot oat latte; reject four-shot flat white | None |
+| Visual Studio | [Shots and milk](https://github.com/cinnamon-msft/brewprint/issues/2) | Two-shot oat latte; reject four-shot cappuccino | None |
 | VS Code | [Ingredient filtering](https://github.com/cinnamon-msft/brewprint/issues/3) | Three milk drinks; useful no-match state | None |
 | Cloud | [Compare drinks](https://github.com/cinnamon-msft/brewprint/issues/9) | Aligned latte/cappuccino diagrams and differences | None |
 
@@ -40,8 +40,10 @@ Keep all ten OPEN in preparation. Do not run two seeders concurrently.
    a setup workflow or Copilot CLI entitlement is not sufficient. In the
    issue assignee menu, confirm Copilot is offered, repository agent access
    is enabled, billing/policies permit a run, and Actions can execute.
-   At preparation time, REST assignable users listed only `cinnamon-msft`,
-   not a Copilot agent; availability is **not verified**. Do not claim a
+   At preparation time, the Browser canvas was signed out, so authenticated
+   assignment controls could not be inspected. REST assignable users listed
+   only `cinnamon-msft`, which does not prove agent entitlement either way.
+   The setup workflow passed, but availability is **not verified**. Do not claim a
    live cloud launch until the UI check succeeds. No preparation agent task
    or PR has been started.
 
