@@ -1,6 +1,6 @@
 namespace Brewprint.Api;
 
-public sealed record IngredientLayer(string Ingredient, int AmountMl);
+public sealed record IngredientLayer(string Ingredient, int AmountMl, string? Label = null);
 public sealed record Recipe(string Id, string Name, string Description, int ServingMl,
     IReadOnlyList<IngredientLayer> Layers);
 

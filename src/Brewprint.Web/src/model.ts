@@ -9,7 +9,7 @@ export const ingredients = {
 export type IngredientId = keyof typeof ingredients;
 export const ingredientIds = Object.keys(ingredients) as IngredientId[];
 export const cupCapacityMl = 360;
-export interface Layer { ingredient: IngredientId; amountMl: number }
+export interface Layer { ingredient: IngredientId; amountMl: number; label?: string | null }
 export interface Recipe {
   id: string;
   name: string;

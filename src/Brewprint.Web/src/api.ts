@@ -5,7 +5,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 function isLayer(value: unknown): value is Layer {
   return isRecord(value) && isIngredientId(value.ingredient) &&
-    typeof value.amountMl === 'number' && Number.isInteger(value.amountMl) && value.amountMl > 0;
+    typeof value.amountMl === 'number' && Number.isInteger(value.amountMl) && value.amountMl > 0 &&
+    (value.label == null || typeof value.label === 'string');
 }
 function isRecipe(value: unknown): value is Recipe {
   return isRecord(value) &&

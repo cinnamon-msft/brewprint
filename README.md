@@ -146,3 +146,15 @@ separate rehearsal branches, never in starter `main`.
 
 Original artwork and code are provided under [MIT](LICENSE). Dependencies
 retain their own licenses. No bundled fonts or external media are required.
+
+## Isolated Visual Studio rehearsal
+
+This branch adds predefined shot/milk previews:
+`GET /api/recipes/{id}/customize?shots=2&milk=Oat`.
+Shots are whole values 1-4 at 30mL each; labels Whole/Oat/Soy only apply to
+milk recipes. Water or steamed milk adjusts, preserving serving and foam;
+less than 1mL remaining rejects. Espresso-only changes total, brewed coffee
+is ineligible. A four-shot cappuccino rejects (zero milk); four-shot flat white
+is valid at 165mL. The preview does not change the manual cup or recipe loading.
+Milk labels make no nutrition/allergy/foaming claims. This is local recovery
+code, not proof of a Visual Studio agent run and not merged into main.

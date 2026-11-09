@@ -13,7 +13,7 @@ export function Cup({ layers, capacityMl, label }: {
       <title id={`${id}-title`}>{label}</title>
       <desc id={`${id}-desc`}>
         {totalMl(layers)} of {capacityMl} mL occupied. Bottom to top: {
-          merged.length ? merged.map(layer => `${ingredients[layer.ingredient].name} ${layer.amountMl} mL`).join(', ') : 'empty'
+          merged.length ? merged.map(layer => `${layer.label ?? ingredients[layer.ingredient].name} ${layer.amountMl} mL`).join(', ') : 'empty'
         }. {capacityMl - totalMl(layers)} mL remaining.
       </desc>
       <defs>
