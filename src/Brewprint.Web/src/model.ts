@@ -23,6 +23,13 @@ export function isIngredientId(value: unknown): value is IngredientId {
 export function totalMl(layers: readonly Layer[]): number {
   return layers.reduce((sum, layer) => sum + layer.amountMl, 0);
 }
+export function findMatchingRecipe(layers: readonly Layer[], recipes: readonly Recipe[]): Recipe | undefined {
+  const volume = totalMl(layers);
+  if (volume === 0) return undefined;
+  return recipes.find(recipe => ingredientIds.every(ingredient =>
+    totalMl(layers.filter(layer => layer.ingredient === ingredient)) * recipe.servingMl ===
+    totalMl(recipe.layers.filter(layer => layer.ingredient === ingredient)) * volume));
+}
 export function mergeLayers(layers: readonly Layer[]): Layer[] {
   return layers.reduce<Layer[]>((merged, layer) => {
     const previous = merged.at(-1);

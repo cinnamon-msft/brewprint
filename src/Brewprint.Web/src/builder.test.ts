@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { builderReducer, initialBuilder } from './builder';
-import { cupCapacityMl, ingredientIds, ingredients, mergeLayers, totalMl, type Recipe } from './model';
+import { cupCapacityMl, findMatchingRecipe, ingredientIds, ingredients, mergeLayers, totalMl, type Recipe } from './model';
 
 const latte: Recipe = { id: 'latte', name: 'Latte', description: 'Milk forward', servingMl: 240,
   layers: [{ ingredient: 'espresso', amountMl: 30 }, { ingredient: 'steamed-milk', amountMl: 180 }, { ingredient: 'milk-foam', amountMl: 30 }] };
@@ -9,6 +9,40 @@ describe('fixed-capacity assembly', () => {
   it.each(ingredientIds)('adds the fixed portion for %s', ingredient => {
     const state = builderReducer(initialBuilder, { type: 'add', ingredient });
     expect(state.additions).toEqual([{ ingredient, amountMl: ingredients[ingredient].portionMl }]);
+  });
+
+  describe('known drink recognition', () => {
+    it('recognizes matching proportions at different serving sizes without mutating the cup or recipe', () => {
+      const smaller = latte.layers.map(layer => ({ ...layer, amountMl: layer.amountMl / 2 }));
+      const snapshot = structuredClone(smaller);
+      expect(findMatchingRecipe(smaller, [latte])).toBe(latte);
+      expect(totalMl(smaller)).toBe(120);
+      expect(smaller).toEqual(snapshot);
+      expect(totalMl(latte.layers)).toBe(240);
+    });
+    it('matches ingredient totals regardless of pouring order or separated additions', () => {
+      const additions = [
+        { ingredient: 'milk-foam' as const, amountMl: 30 },
+        { ingredient: 'steamed-milk' as const, amountMl: 90 },
+        { ingredient: 'espresso' as const, amountMl: 30 },
+        { ingredient: 'steamed-milk' as const, amountMl: 90 },
+      ];
+      expect(findMatchingRecipe(additions, [latte])).toBe(latte);
+    });
+    it('does not recognize empty cups, missing ingredients, extras or near-matching proportions', () => {
+      expect(findMatchingRecipe([], [latte])).toBeUndefined();
+      expect(findMatchingRecipe(latte.layers.slice(0, -1), [latte])).toBeUndefined();
+      expect(findMatchingRecipe([...latte.layers, { ingredient: 'water', amountMl: 60 }], [latte])).toBeUndefined();
+      expect(findMatchingRecipe([...latte.layers, { ingredient: 'steamed-milk', amountMl: 30 }], [latte])).toBeUndefined();
+      expect(findMatchingRecipe(latte.layers, [])).toBeUndefined();
+    });
+    it('distinguishes drinks using every ingredient, not just the serving total', () => {
+      const cappuccino: Recipe = { ...latte, id: 'cappuccino', name: 'Cappuccino', servingMl: 180,
+        layers: [{ ingredient: 'espresso', amountMl: 60 }, { ingredient: 'steamed-milk', amountMl: 60 },
+          { ingredient: 'milk-foam', amountMl: 60 }] };
+      const additions = cappuccino.layers.map(layer => ({ ...layer, amountMl: 30 }));
+      expect(findMatchingRecipe(additions, [latte, cappuccino])).toBe(cappuccino);
+    });
   });
   it('fills exactly and rejects overflow without mutating additions', () => {
     let state = initialBuilder;

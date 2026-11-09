@@ -34,6 +34,13 @@ and 10 browser scenarios cover matching amounts, leader alignment, empty cups,
 and non-overlapping 16px labels in full 12-layer builds at desktop, tablet and
 phone widths. The SVG descriptions and complete text breakdown remain intact.
 
+Known-drink recognition now uses the loaded API catalog and exact ingredient
+proportions, regardless of serving size or pouring order. It changes only the
+displayed name/description and live status, never the custom ingredients.
+Coverage is now 29 frontend tests and 12 browser scenarios, including manual
+construction of all six house drinks, mismatches, edits/undo/removal/reset,
+independent browsing, overflow preservation and API failure/recovery.
+
 The historical four feature branches below still use the original starter.
 They are not new-design recovery checkpoints; no headline feature was merged
 into main.

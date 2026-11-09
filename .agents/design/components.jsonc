@@ -18,7 +18,7 @@
     },
     {
       "name": "Builder",
-      "note": "Build mode reuses the central 360mL cup. Ordered layers, polite live status, undo/remove/reset; custom state survives recipe browsing.",
+      "note": "Build mode reuses the central 360mL cup. Recognize house recipes by ingredient proportions, showing the matched name/description and polite live status without changing contents. Undo/remove/reset and browsing preserve their existing behavior.",
       "root": { "id": "builder", "el": "section", "layout": { "mode": "vertical", "gap": "5", "padding": "5" }, "appearance": { "background": "surface", "radius": "md" } }
     },
     {

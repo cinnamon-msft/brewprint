@@ -65,10 +65,12 @@ test('actual mouse drag/drop and keyboard Add share assembly behavior', async ({
   await page.getByRole('button', { name: 'Build your own', exact: true }).click();
   await dragIngredient(page, 'espresso');
   await expect(page.getByTestId('fill-reading')).toHaveText('30 / 360 mL');
+  await expect(page.getByRole('heading', { name: 'Espresso', exact: true })).toBeVisible();
   const addMilk = page.getByRole('button', { name: 'Add Steamed milk', exact: true });
   await addMilk.focus();
   await page.keyboard.press('Enter');
   await expect(page.getByTestId('fill-reading')).toHaveText('60 / 360 mL');
+  await expect(page.getByRole('heading', { name: 'Your signature cup.', exact: true })).toBeVisible();
   await expect(page.locator('.breakdown li').first()).toContainText('Espresso');
   await expect(page.locator('.breakdown li').last()).toContainText('Steamed milk');
   await expect(addMilk).toHaveCSS('outline-style', 'solid');
@@ -93,6 +95,7 @@ test('exact capacity, overflow rejection, undo, removal, reset and memory-only s
   await expect(page.getByTestId('fill-reading')).toHaveText('330 / 360 mL');
   await page.getByRole('button', { name: 'Remove Water', exact: true }).click();
   await expect(page.getByTestId('fill-reading')).toHaveText('30 / 360 mL');
+  await expect(page.getByTestId('drink-recognition')).toContainText('Recognized Espresso');
   await page.getByRole('button', { name: 'Reset cup', exact: true }).click();
   await expect(page.getByTestId('fill-reading')).toHaveText('0 / 360 mL');
   await expect(page.getByRole('button', { name: 'Undo last addition' })).toBeDisabled();
@@ -145,11 +148,62 @@ test('API failure and retry leave the shared manual cup usable offline', async (
   await page.getByRole('button', { name: 'Build your own', exact: true }).click();
   await page.getByRole('button', { name: 'Add Espresso', exact: true }).click();
   await expect(page.getByTestId('fill-reading')).toHaveText('30 / 360 mL');
+  await expect(page.getByTestId('drink-recognition')).toContainText('recognition is unavailable');
   fail = false;
   await page.getByRole('button', { name: 'Retry recipes' }).click();
   await expect(page.locator('.recipe-tile')).toHaveCount(6);
   await expect(page.getByRole('alert')).toHaveCount(0);
   await expect(page.getByTestId('fill-reading')).toHaveText('30 / 360 mL');
+  await expect(page.getByRole('heading', { name: 'Espresso', exact: true })).toBeVisible();
+  await expect(page.getByTestId('drink-recognition')).toContainText('Recognized Espresso');
+});
+
+test('manual portions can create all six known drinks without resizing the builder', async ({ page }) => {
+  await page.getByRole('button', { name: 'Build your own', exact: true }).click();
+  const cases = [
+    { name: 'Espresso', volume: 30, additions: [['Espresso', 1]] },
+    { name: 'Americano', volume: 360, additions: [['Espresso', 2], ['Water', 5]] },
+    { name: 'Latte', volume: 240, additions: [['Espresso', 1], ['Steamed milk', 6], ['Milk foam', 1]] },
+    { name: 'Cappuccino', volume: 90, additions: [['Milk foam', 1], ['Steamed milk', 1], ['Espresso', 1]] },
+    { name: 'Flat white', volume: 330, additions: [['Espresso', 4], ['Steamed milk', 6], ['Milk foam', 1]] },
+    { name: 'Brewed coffee', volume: 60, additions: [['Brewed coffee', 1]] },
+  ] as const;
+  for (const [index, recipe] of cases.entries()) {
+    if (index) await page.getByRole('button', { name: 'Reset cup', exact: true }).click();
+    for (const [ingredient, count] of recipe.additions) {
+      for (let addition = 0; addition < count; addition++) {
+        await page.getByRole('button', { name: `Add ${ingredient}`, exact: true }).click();
+      }
+    }
+    await expect(page.getByRole('heading', { name: recipe.name, exact: true })).toBeVisible();
+    await expect(page.getByTestId('drink-recognition')).toContainText(`Recognized ${recipe.name}`);
+    await expect(page.getByTestId('fill-reading')).toHaveText(`${recipe.volume} / 360 mL`);
+    await expect(page.locator('svg.cup')).toHaveAttribute('data-capacity', '360');
+    await expect(page.getByRole('button', { name: 'Build your own', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    if (recipe.name === 'Americano') {
+      await page.getByRole('button', { name: 'Add Espresso', exact: true }).click();
+      await expect(page.locator('.builder-status')).toContainText('Cannot add Espresso');
+      await expect(page.getByRole('heading', { name: 'Americano', exact: true })).toBeVisible();
+    }
+  }
+});
+
+test('recognition follows edits, undo, removal, reset, recipe load and independent browsing', async ({ page }) => {
+  await page.getByRole('button', { name: 'Use this recipe', exact: true }).click();
+  await expect(page.getByTestId('drink-recognition')).toContainText('Recognized Latte');
+  await page.getByTestId('recipe-americano').click();
+  await page.getByRole('button', { name: 'Build your own', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Latte', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Add Steamed milk', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Your signature cup.', exact: true })).toBeVisible();
+  await expect(page.getByTestId('drink-recognition')).not.toContainText('Recognized');
+  await page.getByRole('button', { name: 'Undo last addition' }).click();
+  await expect(page.getByTestId('drink-recognition')).toContainText('Recognized Latte');
+  await page.getByRole('button', { name: 'Remove Milk foam', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Your signature cup.', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Reset cup', exact: true }).click();
+  await expect(page.getByTestId('drink-recognition')).not.toContainText('Recognized');
+  await expect(page.getByTestId('fill-reading')).toHaveText('0 / 360 mL');
 });
 
 test('slow responses show loading, invalid data is not rendered', async ({ page }) => {

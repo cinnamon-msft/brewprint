@@ -99,6 +99,15 @@ Overflow is announced and rejected without mutation. Builds remain in memory
 and disappear on reload. Named layer breakdowns, SVG descriptions, visible
 focus, native buttons, live feedback and reduced-motion support are baseline.
 
+The builder recognizes house drinks by **ingredient proportions**, using the
+loaded recipe API data. A smaller/larger serving or a different pouring order
+can still match: 30mL each of espresso, milk and foam is a 90mL cappuccino.
+Its name and description appear above the cup, with a live match announcement.
+Missing or extra ingredients and changed ratios do not match; editing, undo,
+removal and reset update the recognition immediately. Recognition does not
+resize the cup or alter its contents. If recipes cannot load, the builder
+still works and explicitly reports that recognition is unavailable.
+
 **Educational disclaimer:** recipes vary by café. Foam is illustrative
 occupied volume, not liquid-yield accuracy. This is a schematic, not fluid
 simulation, a nutrition calculator or a barista specification.

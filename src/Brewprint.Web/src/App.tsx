@@ -2,7 +2,7 @@ import { useEffect, useReducer, useRef, useState } from 'react';
 import { fetchRecipes } from './api';
 import { builderReducer, initialBuilder } from './builder';
 import { Cup } from './Cup';
-import { cupCapacityMl, ingredientIds, ingredients, isIngredientId, mergeLayers, totalMl, type Layer, type Recipe } from './model';
+import { cupCapacityMl, findMatchingRecipe, ingredientIds, ingredients, isIngredientId, mergeLayers, totalMl, type Layer, type Recipe } from './model';
 
 function Breakdown({ layers }: { layers: readonly Layer[] }) {
   return <ol className="breakdown" aria-label="Ingredients, bottom to top">
@@ -29,6 +29,7 @@ export default function App() {
   const layers = mode === 'builder' ? builder.additions : ready ? selected.layers : [];
   const filled = totalMl(layers);
   const present = ingredientIds.filter(id => builder.additions.some(layer => layer.ingredient === id));
+  const matchedRecipe = ready ? findMatchingRecipe(builder.additions, recipes) : undefined;
 
   function changeMode(next: 'recipe' | 'builder') {
     setMode(next);
@@ -67,10 +68,12 @@ export default function App() {
 
       <section className={`experience ${mode === 'builder' ? 'is-building' : ''}`} id="workbench" tabIndex={-1} aria-labelledby="cup-heading">
         <div className="drink-heading">
-          <p className="eyebrow">{mode === 'builder' ? 'A little imagination. Your own creation.' : 'Coffee, beautifully deconstructed.'}</p>
-          <h1 id="cup-heading">{mode === 'builder' ? 'Your signature cup.' : ready ? selected.name : 'The house menu.'}</h1>
+          <p className="eyebrow">{mode === 'builder'
+            ? matchedRecipe ? 'A house classic, made by you.' : 'A little imagination. Your own creation.'
+            : 'Coffee, beautifully deconstructed.'}</p>
+          <h1 id="cup-heading">{mode === 'builder' ? matchedRecipe?.name ?? 'Your signature cup.' : ready ? selected.name : 'The house menu.'}</h1>
           <p className="drink-description">{mode === 'builder'
-            ? 'Start with a shot. Add a little silk. Make it yours.'
+            ? matchedRecipe?.description ?? 'Start with a shot. Add a little silk. Make it yours.'
             : ready ? selected.description : 'Six classics. One cup. A closer look at what goes inside.'}</p>
         </div>
         <div ref={cupScene} className={`cup-scene ${mode === 'builder' ? 'drop-zone' : ''} ${dragActive ? 'drag-active' : ''} ${overCup ? 'drag-over' : ''}`}
@@ -95,7 +98,8 @@ export default function App() {
           <div className="scene-halo" aria-hidden="true" />
           <span className="scene-caption">{mode === 'builder' ? overCup ? 'Release to pour' : 'Drag ingredients into your cup' : 'THE ANATOMY OF A CLASSIC'}</span>
           <Cup layers={layers} capacityMl={cupCapacityMl}
-            label={mode === 'builder' ? 'Your custom coffee build' : ready ? `${selected.name}: ingredient layers` : 'Empty cup, recipes unavailable'} />
+            label={mode === 'builder' ? matchedRecipe ? `${matchedRecipe.name}: your custom build` : 'Your custom coffee build'
+              : ready ? `${selected.name}: ingredient layers` : 'Empty cup, recipes unavailable'} />
           <span className="capacity-mark">360 mL <span>cutaway glass</span></span>
         </div>
         <div className="cup-readout">
@@ -130,6 +134,11 @@ export default function App() {
         </div>
         <div className="builder-status" role="status" aria-live="polite" aria-atomic="true">
           <span key={builder.revision}>{builder.message}</span>
+          <span className="builder-recognition" data-testid="drink-recognition">
+            {matchedRecipe ? `Recognized ${matchedRecipe.name}: ${filled} mL, matching the house recipe's ingredient proportions.`
+              : !ready ? 'Drink recognition is unavailable until the recipe book loads. You can still build your cup.'
+              : 'Match a house drink\'s ingredient proportions to discover its name. Serving size and pouring order can vary.'}
+          </span>
         </div>
         <div className="builder-actions">
           <button disabled={!builder.additions.length} onClick={() => dispatch({ type: 'undo' })}>Undo last addition</button>

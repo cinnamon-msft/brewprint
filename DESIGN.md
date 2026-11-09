@@ -56,6 +56,9 @@ Patterns live in `.agents/design/components.jsonc`.
 - Tray: draggable ingredients with clearly labeled equivalent Add buttons.
 - Builder: prominent labeled drop zone, visible drag feedback, polite live
   announcements, ingredient removal, undo last addition and reset.
+  When ingredient totals match a house recipe's proportions, use its name
+  and description above the cup and announce the match. Serving size and
+  assembly order may differ; recognition never changes the build.
 - API error: visible alert and explicit retry. No sample-data fallback.
 
 ## Layout and accessibility

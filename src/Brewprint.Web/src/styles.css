@@ -107,6 +107,7 @@ main { max-width: 1080px; margin: auto; padding: var(--s6) var(--s5) var(--s7); 
 .drop-zone.drag-over { border-color: var(--accent); outline: 3px solid var(--accent); background: #b48c5414; }
 .builder-status { margin-top: var(--s5); padding: var(--s4); min-height: 60px; text-align: center;
   color: var(--accent); background: var(--surface); border-radius: 8px; }
+.builder-recognition { display: block; margin-top: var(--s2); color: var(--muted); font-size: 16px; }
 .builder-actions, .remove-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s3); margin-top: var(--s4); }
 .remove-actions button { font-size: 16px; border: 0; text-decoration: underline; text-underline-offset: 4px; color: var(--muted); }
 .schematic-note { text-align: center; font-size: 16px; color: var(--muted); margin-top: var(--s6); }
