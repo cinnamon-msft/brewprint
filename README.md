@@ -146,3 +146,14 @@ separate rehearsal branches, never in starter `main`.
 
 Original artwork and code are provided under [MIT](LICENSE). Dependencies
 retain their own licenses. No bundled fonts or external media are required.
+
+## Isolated CLI rehearsal
+
+This branch adds only predefined recipe size previews. API:
+`GET /api/recipes/{id}/scale?targetMl=237`, whole-mL sizes 60-480.
+C# uses largest fractional remainders, breaking ties by assembly order.
+Displayed amounts conserve the requested total; any zero layer is named
+explicitly. All base ingredients remain positive throughout the allowed sizes
+for the current catalog. Base data, recipe loading and the manual builder
+remain unchanged. Preview diagrams use the requested capacity, including
+480mL. This is recovery code, not a feature merged into starter main.

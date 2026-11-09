@@ -7,18 +7,18 @@ function isLayer(value: unknown): value is Layer {
   return isRecord(value) && isIngredientId(value.ingredient) &&
     typeof value.amountMl === 'number' && Number.isInteger(value.amountMl) && value.amountMl > 0;
 }
-function isRecipe(value: unknown): value is Recipe {
+function isRecipe(value: unknown, maximumMl = cupCapacityMl): value is Recipe {
   return isRecord(value) &&
     typeof value.id === 'string' && value.id.length > 0 &&
     typeof value.name === 'string' && value.name.length > 0 &&
     typeof value.description === 'string' &&
     typeof value.servingMl === 'number' && Number.isInteger(value.servingMl) &&
-    value.servingMl > 0 && value.servingMl <= cupCapacityMl &&
+    value.servingMl > 0 && value.servingMl <= maximumMl &&
     Array.isArray(value.layers) && value.layers.length > 0 && value.layers.every(isLayer) &&
     totalMl(value.layers) === value.servingMl;
 }
-export function parseRecipes(value: unknown): Recipe[] {
-  if (!Array.isArray(value) || value.length === 0 || !value.every(isRecipe) ||
+export function parseRecipes(value: unknown, maximumMl = cupCapacityMl): Recipe[] {
+  if (!Array.isArray(value) || value.length === 0 || !value.every(recipe => isRecipe(recipe, maximumMl)) ||
       new Set(value.map(recipe => recipe.id)).size !== value.length) {
     throw new Error('The recipe API returned invalid data. Check the backend and retry.');
   }

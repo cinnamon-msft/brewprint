@@ -2,6 +2,7 @@ import { useEffect, useReducer, useState } from 'react';
 import { fetchRecipes } from './api';
 import { builderReducer, initialBuilder } from './builder';
 import { Cup } from './Cup';
+import { ScaleRecipe } from './ScaleRecipe';
 import { cupCapacityMl, ingredientIds, ingredients, isIngredientId, mergeLayers, totalMl, type Layer, type Recipe } from './model';
 
 function Breakdown({ layers }: { layers: readonly Layer[] }) {
@@ -67,6 +68,7 @@ export default function App() {
         </div>}
       </section>
 
+      {selected && !loading && !error && <ScaleRecipe key={selected.id} recipe={selected} />}
       <div className="workbench" id="workbench" tabIndex={-1}>
         <section className="recipe-detail panel" aria-labelledby="recipe-heading">
           <p className="eyebrow">02 / Behind the drink</p>

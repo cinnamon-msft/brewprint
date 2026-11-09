@@ -104,3 +104,9 @@ footer > span { font-size: 16px; }
   .legend { gap: var(--s4); }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+.recipe-size { margin-top: var(--s5); }
+.size-controls { display: flex; align-items: end; flex-wrap: wrap; gap: var(--s4); margin-top: var(--s4); }
+.size-controls label { display: grid; gap: var(--s2); }
+.size-controls input { font: inherit; min-height: 44px; width: 160px; padding: var(--s2); border: 1px solid var(--ink); border-radius: 8px; background: var(--paper); color: var(--ink); }
+.size-result { display: grid; grid-template-columns: minmax(0, 280px) minmax(0, 1fr); gap: var(--s5); align-items: center; }
+@media (max-width: 700px) { .size-result { grid-template-columns: 1fr; } .size-result .cup { max-width: 280px; margin: auto; } }
