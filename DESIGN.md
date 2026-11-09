@@ -53,7 +53,12 @@ Patterns live in `.agents/design/components.jsonc`.
 - Mode switch: House menu / Build your own, two native pressed-state buttons.
   Both modes share the single central cup. Browsing shows recipes but preserves
   the custom build in memory; only "Use this recipe" replaces that build.
-- Tray: draggable ingredients with clearly labeled equivalent Add buttons.
+- Tray: original SVG ingredient icons beside the cup on its right, leaving
+  the callouts on the left. No rectangular ingredient cards. Each icon is a
+  native button labeled "Add {ingredient}": drag it to pour, or activate it
+  with pointer, touch, Enter or Space. The drag ghost contains only its glyph.
+  At 800px and narrower, show the icons above the cup in a compact row/grid.
+  Keep the cup centered on wider screens and preserve 44px minimum targets.
 - Builder: prominent labeled drop zone, visible drag feedback, polite live
   announcements, ingredient removal, undo last addition and reset.
   When ingredient totals match a house recipe's proportions, use its name

@@ -41,6 +41,14 @@ Coverage is now 29 frontend tests and 12 browser scenarios, including manual
 construction of all six house drinks, mismatches, edits/undo/removal/reset,
 independent browsing, overflow preservation and API failure/recovery.
 
+The icon-palette update replaces the rectangular ingredient cards with original
+SVG icon controls beside the cup on its right, or above it on narrow screens.
+All five icons support native dragging and pointer/keyboard/touch addition.
+The browser suite now has 13 scenarios, including direct glyph-to-cup drags
+without scrolling, centered cup/adjacent palette checks at desktop widths,
+and readable, unclipped controls down to 320px. Desktop and mobile builder
+screenshots were inspected; the ingredient volumes and reducer are unchanged.
+
 The historical four feature branches below still use the original starter.
 They are not new-design recovery checkpoints; no headline feature was merged
 into main.

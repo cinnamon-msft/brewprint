@@ -86,8 +86,11 @@ without overwriting the custom build. Switching back restores it.
 
 ## Build your cup
 
-Drag a tray ingredient into the cup, or use a labeled Add button with keyboard
-or touch. Fixed portions: espresso 30, brewed coffee 60, water 60, steamed milk
+Drag an ingredient icon into the cup, or select the same labeled Add control
+with pointer, keyboard or touch. The icon palette sits beside the cup on the
+right, keeping the drag distance short and the layer labels unobstructed.
+On narrow screens it moves above the cup. Fixed portions: espresso 30,
+brewed coffee 60, water 60, steamed milk
 30, foam 30 mL; capacity **360 mL**. Fill is the actual occupied fraction,
 with unused space visible. Additions stack bottom-to-top in assembly order;
 only adjacent matching layers merge visually. Undo removes the last whole

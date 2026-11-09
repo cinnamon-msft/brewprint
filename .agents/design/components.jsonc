@@ -13,8 +13,8 @@
     },
     {
       "name": "IngredientTray",
-      "note": "Each draggable ingredient includes a 44px native Add button using the same reducer action as drop.",
-      "root": { "id": "tray", "el": "section", "layout": { "mode": "vertical", "gap": "3" }, "children": ["{label}", { "id": "add", "el": "button", "appearance": { "background": "accent", "color": "accentInk", "radius": "sm" }, "children": ["Add {label}"] }] }
+      "note": "Original SVG icons to the right of the centered cup, above it on narrow screens. No ingredient cards. Each draggable icon is a native Add button with visible name/portion, a glyph-only drag ghost, and the same reducer action for drop, click, touch and keyboard.",
+      "root": { "id": "tray", "el": "aside", "layout": { "mode": "vertical", "gap": "2" }, "children": ["Ingredients", { "id": "add", "el": "button", "children": ["{original SVG icon}", "{label}", "{portionMl} mL"] }] }
     },
     {
       "name": "Builder",

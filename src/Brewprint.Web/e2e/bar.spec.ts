@@ -6,7 +6,7 @@ async function dragIngredient(page: Page, ingredient: string) {
   const target = page.getByTestId('cup-drop-target');
   await source.scrollIntoViewIfNeeded();
   const start = await source.boundingBox();
-  if (!start) throw new Error('Ingredient card is not rendered');
+  if (!start) throw new Error('Ingredient icon is not rendered');
   await page.mouse.move(start.x + start.width / 2, start.y + start.height / 2);
   await page.mouse.down();
   // Start the native drag before scrolling the destination into view.
@@ -77,6 +77,50 @@ test('actual mouse drag/drop and keyboard Add share assembly behavior', async ({
   const layer = page.locator('[data-layer="espresso"]');
   expect(Number(await layer.getAttribute('height'))).toBeCloseTo(184 * 30 / 360);
   expect(Number(await layer.getAttribute('y'))).toBeCloseTo(220 - 184 * 30 / 360);
+});
+
+test('ingredient icons sit beside the cup and drag directly without scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.getByRole('button', { name: 'Build your own', exact: true }).click();
+  const palette = page.locator('.ingredient-palette');
+  await expect(palette.getByRole('button')).toHaveCount(5);
+  await expect(palette.locator('svg.ingredient-drawing')).toHaveCount(5);
+  for (const width of [1440, 900, 801]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const cup = await page.locator('svg.cup').boundingBox();
+    const tray = await palette.boundingBox();
+    if (!cup || !tray) throw new Error('Cup and ingredient palette must be rendered');
+    expect(cup.x + cup.width / 2).toBeCloseTo(width / 2, 0);
+    expect(tray.x).toBeGreaterThanOrEqual(cup.x + cup.width);
+    expect(tray.y).toBeLessThan(cup.y + cup.height);
+    expect(tray.y + tray.height).toBeGreaterThan(cup.y);
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const before = await page.evaluate(() => window.scrollY);
+  for (const [ingredient, amount] of [['espresso', 30], ['brewed-coffee', 90],
+    ['water', 150], ['steamed-milk', 180], ['milk-foam', 210]] as const) {
+    const source = page.getByTestId(`tray-${ingredient}`);
+    await expect(source).toHaveAttribute('draggable', 'true');
+    await source.locator('.ingredient-glyph').dragTo(page.getByTestId('cup-drop-target'));
+    await expect(page.getByTestId('fill-reading')).toHaveText(`${amount} / 360 mL`);
+    expect(await page.evaluate(() => window.scrollY)).toBe(before);
+  }
+  for (const width of [800, 600, 390, 320]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const cup = await page.getByTestId('cup-drop-target').boundingBox();
+    const tray = await palette.boundingBox();
+    if (!cup || !tray) throw new Error('Cup and ingredient palette must be rendered');
+    expect(tray.y + tray.height).toBeLessThanOrEqual(cup.y);
+    expect(await page.locator('body').evaluate(element => element.scrollWidth)).toBeLessThanOrEqual(width);
+    const fits = await palette.getByRole('button').evaluateAll(buttons => buttons.every(button => {
+      const bounds = button.getBoundingClientRect();
+      const label = button.querySelector('.ingredient-copy')?.getBoundingClientRect();
+      return bounds.width >= 44 && bounds.height >= 44 && label !== undefined &&
+        label.left >= bounds.left - 1 && label.right <= bounds.right + 1;
+    }));
+    expect(fits).toBe(true);
+  }
 });
 
 test('exact capacity, overflow rejection, undo, removal, reset and memory-only state', async ({ page }) => {
@@ -307,6 +351,7 @@ test('responsive dark composition and builder screenshots', async ({ page }) => 
   await page.screenshot({ path: path.join('test-results', 'bar-builder.png'), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.locator('body').evaluate(el => el.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.screenshot({ path: path.join('test-results', 'bar-builder-mobile.png'), fullPage: true });
   await page.getByTestId('recipe-latte').click();
   await page.screenshot({ path: path.join('test-results', 'bar-mobile.png'), fullPage: true });
 });

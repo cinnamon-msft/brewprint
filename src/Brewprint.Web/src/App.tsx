@@ -2,6 +2,7 @@ import { useEffect, useReducer, useRef, useState } from 'react';
 import { fetchRecipes } from './api';
 import { builderReducer, initialBuilder } from './builder';
 import { Cup } from './Cup';
+import { IngredientIcon } from './IngredientIcon';
 import { cupCapacityMl, findMatchingRecipe, ingredientIds, ingredients, isIngredientId, mergeLayers, totalMl, type Layer, type Recipe } from './model';
 
 function Breakdown({ layers }: { layers: readonly Layer[] }) {
@@ -76,6 +77,7 @@ export default function App() {
             ? matchedRecipe?.description ?? 'Start with a shot. Add a little silk. Make it yours.'
             : ready ? selected.description : 'Six classics. One cup. A closer look at what goes inside.'}</p>
         </div>
+        <div className={`cup-workspace ${mode === 'builder' ? 'has-ingredients' : ''}`}>
         <div ref={cupScene} className={`cup-scene ${mode === 'builder' ? 'drop-zone' : ''} ${dragActive ? 'drag-active' : ''} ${overCup ? 'drag-over' : ''}`}
           role="region" aria-label={mode === 'builder' ? 'Cup drop target' : 'Selected drink display'}
           data-testid="cup-drop-target"
@@ -102,6 +104,36 @@ export default function App() {
               : ready ? `${selected.name}: ingredient layers` : 'Empty cup, recipes unavailable'} />
           <span className="capacity-mark">360 mL <span>cutaway glass</span></span>
         </div>
+        {mode === 'builder' && <aside className="ingredient-palette" aria-labelledby="ingredient-heading">
+          <h2 id="ingredient-heading">Ingredients</h2>
+          <p className="palette-hint">Drag to pour. Select to add.</p>
+          <div className="ingredient-tray" role="group" aria-label="Ingredient tray">
+            {ingredientIds.map(id => <button key={id} className="ingredient" draggable data-testid={`tray-${id}`}
+              aria-label={`Add ${ingredients[id].name}`} aria-describedby={`portion-${id}`}
+              onClick={() => dispatch({ type: 'add', ingredient: id })}
+              onDragStart={event => {
+                event.dataTransfer.setData('application/x-brewprint-ingredient', id);
+                event.dataTransfer.effectAllowed = 'copy';
+                const icon = event.currentTarget.querySelector('.ingredient-glyph');
+                if (icon) {
+                  const bounds = icon.getBoundingClientRect();
+                  event.dataTransfer.setDragImage(icon, bounds.width / 2, bounds.height / 2);
+                }
+                setDragActive(true);
+              }}
+              onDragEnd={() => { setDragActive(false); setOverCup(false); }}>
+              <span className="ingredient-glyph" style={{ color: ingredients[id].color }}>
+                <IngredientIcon ingredient={id} />
+              </span>
+              <span className="ingredient-copy"><strong>{ingredients[id].name}</strong>
+                <span className="portion" id={`portion-${id}`}>{ingredients[id].portionMl} mL{
+                  id === 'milk-foam' && <span className="occupied-volume"> occupied</span>
+                }</span>
+              </span>
+            </button>)}
+          </div>
+        </aside>}
+        </div>
         <div className="cup-readout">
           <p className="fill-reading" data-testid="fill-reading"><strong>{filled}</strong><span> / 360 mL</span></p>
           <span className="remaining">{cupCapacityMl - filled} mL of room to play</span>
@@ -114,24 +146,7 @@ export default function App() {
         </p>}
       </section>
 
-      {mode === 'builder' && <section className="builder" aria-labelledby="builder-heading">
-        <div className="section-heading"><span className="section-rule" aria-hidden="true" />
-          <h2 id="builder-heading">A palette for your palate.</h2><span className="section-rule" aria-hidden="true" /></div>
-        <p className="builder-intro">Drag to pour, or use Add. Fixed portions, layered bottom to top in assembly order.</p>
-        <div className="ingredient-tray" aria-label="Ingredient tray">
-          {ingredientIds.map(id => <div key={id} className="ingredient" draggable data-testid={`tray-${id}`}
-            onDragStart={event => {
-              event.dataTransfer.setData('application/x-brewprint-ingredient', id);
-              event.dataTransfer.effectAllowed = 'copy';
-              setDragActive(true);
-            }}
-            onDragEnd={() => { setDragActive(false); setOverCup(false); }}>
-            <span className="swatch" style={{ background: ingredients[id].color }} aria-hidden="true" />
-            <strong>{ingredients[id].name}</strong>
-            <span className="portion">{ingredients[id].portionMl} mL{id === 'milk-foam' ? ' occupied' : ''}</span>
-            <button aria-label={`Add ${ingredients[id].name}`} onClick={() => dispatch({ type: 'add', ingredient: id })}>Add</button>
-          </div>)}
-        </div>
+      {mode === 'builder' && <section className="builder" aria-label="Cup controls">
         <div className="builder-status" role="status" aria-live="polite" aria-atomic="true">
           <span key={builder.revision}>{builder.message}</span>
           <span className="builder-recognition" data-testid="drink-recognition">
