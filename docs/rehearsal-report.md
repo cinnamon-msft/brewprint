@@ -28,6 +28,12 @@ All 9 scenarios also passed against the Release-published, single-origin
 ASP.NET app on port 5080, with API health and built frontend assets served
 successfully. Updated desktop, builder and mobile screenshots were inspected.
 
+The subsequent ingredient-label update adds brass leader lines to each actual
+layer, including thin foam and repeated builder layers. Its 25 frontend tests
+and 10 browser scenarios cover matching amounts, leader alignment, empty cups,
+and non-overlapping 16px labels in full 12-layer builds at desktop, tablet and
+phone widths. The SVG descriptions and complete text breakdown remain intact.
+
 The historical four feature branches below still use the original starter.
 They are not new-design recovery checkpoints; no headline feature was merged
 into main.

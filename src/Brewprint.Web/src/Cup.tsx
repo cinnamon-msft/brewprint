@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, useLayoutEffect, useRef, useState } from 'react';
 import { ingredientIds, ingredients, mergeLayers, totalMl, type Layer } from './model';
 
 export function Cup({ layers, capacityMl, label }: {
@@ -6,8 +6,69 @@ export function Cup({ layers, capacityMl, label }: {
 }) {
   const id = useId().replace(/:/g, '');
   const merged = mergeLayers(layers);
+  const illustration = useRef<HTMLDivElement>(null);
+  const glass = useRef<SVGSVGElement>(null);
+  const labels = useRef<HTMLOListElement>(null);
+  const [geometry, setGeometry] = useState({ width: 760, height: 361.25, x: 210, y: 0, scale: 340 / 320, labelWidth: 190 });
+
+  useLayoutEffect(() => {
+    const root = illustration.current;
+    const svg = glass.current;
+    const list = labels.current;
+    if (!root || !svg || !list) return;
+    const measure = () => {
+      const frame = root.getBoundingClientRect();
+      const cup = svg.getBoundingClientRect();
+      setGeometry({ width: frame.width, height: frame.height, x: cup.x - frame.x,
+        y: cup.y - frame.y, scale: cup.width / 320, labelWidth: list.getBoundingClientRect().width });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+    observer.observe(svg);
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, []);
+
   let occupied = 0;
-  return <svg className="cup" viewBox="0 -60 320 340" role="img" aria-labelledby={`${id}-title ${id}-desc`}
+  const segments = merged.map(layer => {
+    const height = layer.amountMl / capacityMl * 184;
+    occupied += height;
+    return { ...layer, height, y: 220 - occupied };
+  });
+  const topToBottom = [...segments].reverse();
+  // Keep thin and repeated layers legible without changing their actual fill.
+  let previousY = -14;
+  let nextY = geometry.height + 14;
+  const labelPositions = topToBottom.map(layer => {
+    previousY = Math.max(geometry.y + (layer.y + layer.height / 2 + 60) * geometry.scale, previousY + 28);
+    return previousY;
+  }).reverse().map(position => {
+    nextY = Math.min(position, nextY - 28);
+    return nextY;
+  }).reverse();
+
+  return <div className="cup-illustration" ref={illustration}
+    style={{ minHeight: `${merged.length * 28}px` }}>
+    <svg className="cup-leaders" viewBox={`0 0 ${geometry.width} ${geometry.height}`} aria-hidden="true">
+      {topToBottom.map((layer, index) => {
+        const x = geometry.x + 66 * geometry.scale;
+        const y = geometry.y + (layer.y + layer.height / 2 + 60) * geometry.scale;
+        return <g key={`${index}-${layer.ingredient}`}>
+          <path d={`M${x} ${y}h-12L${geometry.labelWidth + 16} ${labelPositions[index]}h-8`} />
+          <circle cx={x} cy={y} r="2.5" />
+        </g>;
+      })}
+    </svg>
+    <ol ref={labels} className="cup-labels" aria-hidden="true">
+      {topToBottom.map((layer, index) => <li key={`${index}-${layer.ingredient}`}
+        className="cup-label" data-callout={layer.ingredient} data-amount={layer.amountMl}
+        style={{ top: `${labelPositions[index]}px` }}>
+        <span>{ingredients[layer.ingredient].name}</span>
+        <span className="cup-label-amount">{layer.amountMl} mL</span>
+      </li>)}
+    </ol>
+    <svg ref={glass} className="cup" viewBox="0 -60 320 340" role="img" aria-labelledby={`${id}-title ${id}-desc`}
     data-capacity={capacityMl} data-filled={totalMl(layers)}>
     <title id={`${id}-title`}>{label}</title>
     <desc id={`${id}-desc`}>{totalMl(layers)} of {capacityMl} mL occupied. Bottom to top: {
@@ -53,14 +114,12 @@ export function Cup({ layers, capacityMl, label }: {
       <path d="M246 69h18c44 0 44 84 0 84h-18" fill="none" stroke="var(--paper)" strokeWidth="5" />
       <rect x="56" y="26" width="194" height="208" rx="18" fill={`url(#${id}-glass)`} stroke="var(--glass)" strokeOpacity=".65" strokeWidth="2.5" />
       <g key={label} clipPath={`url(#${id}-inside)`} className="liquid-layers">
-        {merged.map((layer, index) => {
-          const height = layer.amountMl / capacityMl * 184;
-          occupied += height;
+        {segments.map((layer, index) => {
           return <g className="pour-layer" key={`${index}-${layer.ingredient}`} style={{ animationDelay: `${index * 90}ms` }}>
             <rect className="liquid-layer" data-layer={layer.ingredient} data-amount={layer.amountMl}
-              x="66" y={220 - occupied} width="174" height={height}
+              x="66" y={layer.y} width="174" height={layer.height}
               fill={`url(#${id}-${layer.ingredient === 'milk-foam' ? 'foam' : layer.ingredient})`} />
-            <path d={`M66 ${220 - occupied + .5}h174`} stroke="var(--ink)" strokeOpacity=".22" strokeWidth="1" />
+            <path d={`M66 ${layer.y + .5}h174`} stroke="var(--ink)" strokeOpacity=".22" strokeWidth="1" />
           </g>;
         })}
       </g>
@@ -72,5 +131,6 @@ export function Cup({ layers, capacityMl, label }: {
       {[0, 1, 2, 3, 4].map(mark => <path key={mark} d={`M240 ${36 + mark * 46}h8`}
         stroke="var(--glass)" strokeOpacity=".5" strokeWidth="1" />)}
     </g>
-  </svg>;
+    </svg>
+  </div>;
 }

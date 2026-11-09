@@ -36,13 +36,22 @@ main { max-width: 1080px; margin: auto; padding: var(--s6) var(--s5) var(--s7); 
 .experience { text-align: center; scroll-margin-top: var(--s5); }
 .eyebrow { text-transform: uppercase; font-size: 16px; letter-spacing: .16em; color: var(--accent); margin-bottom: var(--s3); }
 .drink-description { color: var(--muted); max-width: 660px; margin: var(--s4) auto 0; }
-.cup-scene { position: relative; isolation: isolate; display: flex; justify-content: center; align-items: center;
-  width: min(100%, 560px); height: 320px; margin: var(--s3) auto 0; border: 1px solid transparent; border-radius: 16px; }
+.cup-scene { position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: center; align-items: center;
+  width: min(100%, 760px); min-height: 320px; margin: var(--s3) auto 0; padding-top: var(--s2);
+  gap: var(--s2); border: 1px solid transparent; border-radius: 16px; }
 .scene-halo { position: absolute; width: 320px; height: 320px; top: 0; border-radius: 50%; z-index: -1;
   background: radial-gradient(ellipse at center, #b48c541f, #b48c5409 50%, transparent 72%); }
 .scene-halo::after { content: ''; position: absolute; inset: 24px; border: 1px solid #b48c541b; border-radius: 50%; }
-.scene-caption { position: absolute; top: var(--s2); left: var(--s4);
-  font-size: 16px; max-width: 130px; text-align: left; color: var(--muted); letter-spacing: .04em; }
+.scene-caption { align-self: flex-start; margin-left: var(--s4);
+  font-size: 16px; text-align: left; color: var(--muted); letter-spacing: .04em; }
+.cup-illustration { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; }
+.cup-leaders { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.cup-leaders path { fill: none; stroke: var(--brass); stroke-width: 1; opacity: .65; }
+.cup-leaders circle { fill: var(--accent); }
+.cup-labels { position: absolute; inset: 0 auto 0 0; width: 190px; list-style: none; padding: 0; margin: 0; pointer-events: none; }
+.cup-label { position: absolute; right: 0; display: flex; align-items: center; justify-content: flex-end;
+  gap: var(--s2); white-space: nowrap; font-size: 16px; line-height: 24px; transform: translateY(-50%); }
+.cup-label-amount { color: var(--accent); }
 .cup { display: block; width: 340px; max-width: 100%; overflow: visible; }
 .cup-object { animation: cup-arrive 850ms var(--ease-out) both; }
 .pour-layer { transform-box: fill-box; transform-origin: center bottom; animation: layer-pour 620ms var(--ease-out) both; }
@@ -53,7 +62,7 @@ main { max-width: 1080px; margin: auto; padding: var(--s6) var(--s5) var(--s7); 
   animation: steam-drift 3.6s ease-in-out infinite; transform-origin: center; opacity: .25; }
 .steam-trail:nth-child(2) { animation-delay: -1.2s; }
 .steam-trail:nth-child(3) { animation-delay: -2.4s; }
-.capacity-mark { position: absolute; right: var(--s4); top: 52%; color: var(--brass); font-size: 16px; text-align: left; }
+.capacity-mark { position: absolute; right: var(--s4); bottom: var(--s4); color: var(--brass); font-size: 16px; text-align: left; }
 .capacity-mark span { display: block; font-size: 16px; color: var(--muted); }
 .fill-reading { line-height: 1.2; }
 .fill-reading strong { font: 36px Georgia, Cambria, serif; }
@@ -122,6 +131,10 @@ footer > span:last-child { margin-left: auto; letter-spacing: .1em; white-space:
   .ingredient-tray { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   footer { padding: var(--s5); flex-wrap: wrap; gap: var(--s4); }
 }
+@media (max-width: 700px) {
+  .cup-labels { width: 118px; }
+  .cup-label-amount { display: none; }
+}
 @media (max-width: 600px) {
   main { padding: var(--s5) var(--s4) var(--s6); }
   .masthead { padding: var(--s4); }
@@ -131,8 +144,8 @@ footer > span:last-child { margin-left: auto; letter-spacing: .1em; white-space:
   .mode-switch button { padding: var(--s2) var(--s4); }
   h1 { font-size: 44px; }
   .eyebrow { font-size: 16px; letter-spacing: .08em; }
-  .cup-scene { height: 320px; }
-  .cup { width: 300px; }
+  .cup-illustration { justify-content: flex-end; }
+  .cup { width: calc(100% - 132px); }
   .scene-halo { width: 280px; height: 280px; top: var(--s5); }
   .scene-caption { display: none; }
   .capacity-mark { top: auto; bottom: 0; right: var(--s2); font-size: 16px; }

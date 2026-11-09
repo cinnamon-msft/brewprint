@@ -8,7 +8,7 @@
     },
     {
       "name": "Cup",
-      "note": "One central original glass SVG, brass saucer, reflections and steam. Accurate volume/capacity fill, staggered pours; reduced-motion final state and text chips.",
+      "note": "One central original glass SVG, brass saucer, reflections and steam. Full-size ingredient callouts with brass leaders track every actual layer; names stay legible on narrow screens and amounts remain in text chips. Accurate fill, staggered pours and reduced-motion final state.",
       "root": { "id": "cup", "el": "svg", "appearance": { "color": "ink" } }
     },
     {

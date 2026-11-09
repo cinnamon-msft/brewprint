@@ -196,6 +196,54 @@ test('layer pours animate the real geometry and reduced motion shows final fill'
   await expect(page.locator('svg.cup')).toHaveAttribute('data-filled', '180');
 });
 
+test('cup ingredient callouts match every layer and stay readable in dense mobile builds', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const id of ['espresso', 'americano', 'latte', 'cappuccino', 'flat-white', 'brewed-coffee']) {
+    await page.getByTestId(`recipe-${id}`).click();
+    const layerAmounts = await page.locator('.liquid-layer').evaluateAll(elements =>
+      elements.map(element => ({ ingredient: element.getAttribute('data-layer'), amount: element.getAttribute('data-amount') })).reverse());
+    await expect(page.locator('.cup-label')).toHaveCount(layerAmounts.length);
+    for (const [index, layer] of layerAmounts.entries()) {
+      await expect(page.locator('.cup-label').nth(index)).toHaveAttribute('data-callout', layer.ingredient!);
+      await expect(page.locator('.cup-label').nth(index)).toHaveAttribute('data-amount', layer.amount!);
+      await expect(page.locator('.cup-label').nth(index)).toContainText(`${layer.amount} mL`);
+    }
+    const offsets = await page.locator('.cup-leaders circle').evaluateAll(elements => {
+      const layers = [...document.querySelectorAll('.liquid-layer')].reverse();
+      return elements.map((element, index) => {
+        const dot = element.getBoundingClientRect();
+        const layer = layers[index]?.getBoundingClientRect();
+        if (!layer) throw new Error('Callout has no corresponding layer');
+        return Math.abs(dot.y + dot.height / 2 - layer.y - layer.height / 2);
+      });
+    });
+    for (const offset of offsets) expect(offset).toBeLessThan(1);
+  }
+  await page.getByRole('button', { name: 'Build your own', exact: true }).click();
+  for (let index = 0; index < 6; index++) {
+    await page.getByRole('button', { name: 'Add Espresso', exact: true }).click();
+    await page.getByRole('button', { name: 'Add Milk foam', exact: true }).click();
+  }
+  await expect(page.locator('.cup-label')).toHaveCount(12);
+  for (const width of [1440, 700, 601, 390, 320]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await expect.poll(async () => page.locator('.cup-label').evaluateAll(elements =>
+      elements.every((element, index) => {
+        const bounds = element.getBoundingClientRect();
+        const next = elements[index + 1]?.getBoundingClientRect();
+        const cup = document.querySelector('svg.cup')?.getBoundingClientRect();
+        if (!cup) throw new Error('Labeled cup is not rendered');
+        return bounds.left >= 0 && bounds.right <= window.innerWidth &&
+          bounds.right + 8 <= cup.x + cup.width * 66 / 320 &&
+          Number.parseFloat(getComputedStyle(element).fontSize) >= 16 &&
+          (!next || bounds.bottom <= next.top);
+      }))).toBe(true);
+    expect(await page.locator('body').evaluate(element => element.scrollWidth)).toBeLessThanOrEqual(width);
+  }
+  await page.getByRole('button', { name: 'Reset cup', exact: true }).click();
+  await expect(page.locator('.cup-label')).toHaveCount(0);
+});
+
 test('responsive dark composition and builder screenshots', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.emulateMedia({ reducedMotion: 'reduce' });

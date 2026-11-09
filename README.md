@@ -73,8 +73,10 @@ cappuccino 180, flat white 165, and brewed coffee 240 mL.
 
 The default dark experience centers one animated glass cup. Choose a drink
 from the house menu below it to update its ingredient layers, description and
-text breakdown. There are no repeated cup thumbnails. Pours, glass highlights
-and steam are decorative; reduced motion shows accurate final geometry
+text breakdown. There are no repeated cup thumbnails. Ingredient callouts
+identify each layer directly beside the glass. On narrow screens, callouts show names
+while the text breakdown retains all amounts. Pours, glass highlights and
+steam are decorative; reduced motion shows accurate final geometry
 immediately. Pointer/touch selection brings an offscreen cup into view so the
 updated drink is visible; keyboard selection retains focus on its menu button.
 

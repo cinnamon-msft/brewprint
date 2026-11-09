@@ -43,6 +43,9 @@ Patterns live in `.agents/design/components.jsonc`.
   Constant interior height. Each layer's height is
   its amount divided by the declared capacity. Leave unused space visible.
   Ingredient chips beneath the cup are the text equivalent.
+  Full-size HTML ingredient callouts connect to each layer with fine brass
+  leaders. Separate thin/repeated layer labels without altering fill geometry.
+  On phones, keep names at 16px beside the glass; amounts remain in the chips.
 - Recipe choice: native button, `aria-pressed`, selected border and text cue;
   name and amount, no miniature cup. Clicking updates the central recipe cup.
   Pointer/touch selection brings an offscreen cup back into view; keyboard
