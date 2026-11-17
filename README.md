@@ -50,15 +50,11 @@ use native `/` path separators in commands.
 ### VS Code tasks
 
 Use **Terminal > Run Task** to run the tasks in
-[.vscode/tasks.json](.vscode/tasks.json). Run `install: web` once after cloning
-(and after lockfile changes), then `dev` to start the API and Vite together
-on ports 5080/5173. Stop both servers with **Tasks: Terminate Task**.
-
-The default build task (**Ctrl+Shift+B**) builds both projects; the default
-test task runs API and frontend unit tests. Run `install: chromium` before
-the first `test: e2e`; Playwright manages its own isolated servers.
-The `publish` task builds the frontend first and writes the Release app to
-`artifacts/publish`. Tasks use the tools on VS Code's PATH and Windows paths.
+[.vscode/tasks.json](.vscode/tasks.json). After installing frontend dependencies
+with `npm ci` as shown above, run `dev` to start the API and Vite together
+on ports 5080/5173, or `dev: api` / `dev: web` to start either separately.
+Stop the servers with **Tasks: Terminate Task**.
+Tasks use the tools on VS Code's PATH and Windows paths.
 
 ## Single-origin production launch
 
