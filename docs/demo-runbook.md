@@ -20,7 +20,7 @@ fresh rehearsal, not a claim that the old checkpoints contain the redesign.
 | Surface | Issue | Visible result | Dependency |
 | --- | --- | --- | --- |
 | CLI | [Scale predefined recipes](https://github.com/cinnamon-msft/brewprint/issues/8) | A 237mL latte with conserved rounded amounts | None |
-| Visual Studio | [Shots and milk](https://github.com/cinnamon-msft/brewprint/issues/2) | Two-shot oat latte; reject four-shot cappuccino | None |
+| Visual Studio | [Vanilla and caramel syrups](https://github.com/cinnamon-msft/brewprint/issues/11) | Two syrup drinks; add syrup in Build your own | None |
 | VS Code | [Ingredient filtering](https://github.com/cinnamon-msft/brewprint/issues/3) | Three milk drinks; useful no-match state | None |
 | Cloud | [Compare drinks](https://github.com/cinnamon-msft/brewprint/issues/9) | Aligned latte/cappuccino diagrams and differences | None |
 
@@ -29,8 +29,9 @@ Optional: [base-drink URL](https://github.com/cinnamon-msft/brewprint/issues/4),
 [themes](https://github.com/cinnamon-msft/brewprint/issues/5),
 [text-first mode](https://github.com/cinnamon-msft/brewprint/issues/1),
 [rounding tests](https://github.com/cinnamon-msft/brewprint/issues/10)
-(depends on scaling), [favorites](https://github.com/cinnamon-msft/brewprint/issues/7).
-Keep all ten OPEN in preparation. Do not run two seeders concurrently.
+(depends on scaling), [favorites](https://github.com/cinnamon-msft/brewprint/issues/7),
+[shots and milk](https://github.com/cinnamon-msft/brewprint/issues/2) (backlog).
+Keep all eleven OPEN in preparation. Do not run two seeders concurrently.
 
 ## Before the room opens
 
@@ -65,7 +66,7 @@ Keep all ten OPEN in preparation. Do not run two seeders concurrently.
 | 6-9 | Launch cloud comparison from its issue if enabled | Issue + repo instructions + tests are durable context; agent runs asynchronously |
 | 9-19 | CLI scaling from an independent starter checkout | Inspect, specify boundaries, implement, run tests, inspect diff |
 | 19-29 | VS Code gallery filter from a fresh starter checkout | UI iteration with running preview, keyboard/empty-state tests |
-| 29-40 | Visual Studio shots/milk from a fresh starter checkout | C# validation plus a complete small UI, not just a backend helper |
+| 29-40 | Visual Studio syrup drinks from a fresh starter checkout | Add catalog ingredients and recipes, validate the API, then show the complete UI |
 | 40-47 | Review cloud output, tests, diff and browser result | Human review before any merge; local demos do not depend on it |
 | 47-50 | Explain context handoffs, recovery and recap | Same repo/issue/test loop across surfaces; not magic shared editor chats |
 
@@ -86,8 +87,9 @@ Open the referenced issue, copy its acceptance criteria and start with:
   repository inspection, a concrete rounding test and the 237mL result.
 - **VS Code:** open the filtering checkout, let Copilot edit the UI and test
   the AND filters with keyboard. Explain why empty state is part of done.
-- **Visual Studio:** open `Brewprint.sln` in the shots checkout, focus on C#
-  rules/invalid requests, then show the companion UI in the browser.
+- **Visual Studio:** open `Brewprint.sln` in the syrup checkout, add the syrup
+  ingredients and two recipes, then show their API results and the syrup tray
+  in Build your own in the browser.
 - **Cloud:** assign the comparison issue through GitHub's actual supported
   agent UI. Review its proposed branch/PR and CI when it finishes. Do not
   auto-merge or close preparation issues.
@@ -103,7 +105,7 @@ Branch/commit: <actual value>
 Implemented: <bounded summary>
 Checks: <commands and outcomes>
 Next: <one concrete remaining step>
-Constraints: predefined recipes only; manual builder unchanged
+Constraints: <issue-specific scope and builder requirements>
 ```
 
 ## Isolated live work and recovery
@@ -114,7 +116,7 @@ Create fresh worktrees in your own presenter checkout (native path separators):
 git fetch origin --tags
 git worktree add -b live-cli ..\brewprint-live-cli demo-start
 git worktree add -b live-vscode ..\brewprint-live-vscode demo-start
-git worktree add -b live-vs ..\brewprint-live-vs demo-start
+git worktree add -b live-vs-syrups ..\brewprint-live-vs-syrups demo-start
 ```
 
 Only one preview uses 5080/5173 at a time. Stop its own terminal process
@@ -131,7 +133,9 @@ Recovery branch names reserved for isolated tested preparation slices:
 `rehearsal/cli-scaling`, `rehearsal/vs-shots-milk`,
 `rehearsal/vscode-filter`, `rehearsal/cloud-compare`.
 See [the rehearsal report](rehearsal-report.md) for actual commit hashes,
-scope and verification status. These are **not** merged into `main`.
+scope and verification status. The shots/milk checkpoint covers issue #2,
+not the syrup demo; there is no syrup recovery checkpoint yet. These branches
+are **not** merged into `main`.
 
 ## Checks after each change
 
