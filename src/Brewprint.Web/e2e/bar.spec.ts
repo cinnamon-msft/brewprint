@@ -47,6 +47,76 @@ test('one centered cup with all six choices below it and dark by default', async
   }
 });
 
+test('theme choice supports keyboard selection, persistence, and readable controls', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  const dark = page.getByRole('radio', { name: 'Dark' });
+  const light = page.getByRole('radio', { name: 'Light' });
+  await expect(dark).toBeChecked();
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
+  await expect(page.locator('.recipe-tile.selected .tile-name')).toHaveCSS('color', 'rgb(223, 183, 123)');
+
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Tab');
+  await expect(dark).toBeFocused();
+  await expect(dark).toHaveCSS('outline-color', 'rgb(223, 183, 123)');
+  await page.keyboard.press('ArrowRight');
+  await expect(light).toBeChecked();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'light');
+  await expect(light).toHaveCSS('outline-style', 'solid');
+  await expect(light).toHaveCSS('outline-color', 'rgb(112, 71, 25)');
+  await expect(page.locator('.recipe-tile.selected .tile-name')).toHaveCSS('color', 'rgb(112, 71, 25)');
+  await expect(page.locator('h1')).toHaveCSS('color', 'rgb(43, 33, 25)');
+
+  await page.reload();
+  await expect(light).toBeChecked();
+  await page.getByRole('button', { name: 'Build your own', exact: true }).click();
+  const undo = page.getByRole('button', { name: 'Undo last addition' });
+  await expect(undo).toBeDisabled();
+  await expect(undo).toHaveCSS('opacity', '1');
+  await expect(undo).toHaveCSS('color', 'rgb(101, 88, 75)');
+  await expect(page.locator('.ingredient strong').first()).toHaveCSS('color', 'rgb(43, 33, 25)');
+
+  await dark.check();
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
+  await expect(undo).toHaveCSS('color', 'rgb(186, 170, 150)');
+  await expect(page.locator('.ingredient strong').first()).toHaveCSS('color', 'rgb(243, 231, 211)');
+});
+
+test('theme selection still works when browser storage is unavailable', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(Storage.prototype, 'getItem', {
+      configurable: true,
+      value: () => { throw new DOMException('Storage denied', 'SecurityError'); },
+    });
+    Object.defineProperty(Storage.prototype, 'setItem', {
+      configurable: true,
+      value: () => { throw new DOMException('Storage denied', 'SecurityError'); },
+    });
+  });
+  await page.reload();
+  const dark = page.getByRole('radio', { name: 'Dark' });
+  const light = page.getByRole('radio', { name: 'Light' });
+  await expect(dark).toBeChecked();
+  await light.check();
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'light');
+  await page.reload();
+  await expect(dark).toBeChecked();
+});
+
+test('recipe errors remain readable after switching themes', async ({ page }) => {
+  await page.route('**/api/recipes', route =>
+    route.fulfill({ status: 503, contentType: 'application/problem+json', body: '{"title":"Unavailable"}' }));
+  await page.reload();
+  const alert = page.getByRole('alert');
+  await expect(alert).toBeVisible();
+  await expect(alert).toHaveCSS('color', 'rgb(243, 231, 211)');
+  await page.getByRole('radio', { name: 'Light' }).check();
+  await expect(alert).toHaveCSS('color', 'rgb(43, 33, 25)');
+  await expect(alert).toHaveCSS('border-top-color', 'rgb(112, 71, 25)');
+});
+
 test('recipe load and independent browsing preserve the custom cup', async ({ page }) => {
   await page.getByRole('button', { name: 'Use this recipe', exact: true }).click();
   await expect(page.getByTestId('fill-reading')).toHaveText('240 / 360 mL');

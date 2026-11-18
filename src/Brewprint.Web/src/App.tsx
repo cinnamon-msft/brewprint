@@ -5,6 +5,16 @@ import { Cup } from './Cup';
 import { IngredientIcon } from './IngredientIcon';
 import { cupCapacityMl, findMatchingRecipe, ingredientIds, ingredients, isIngredientId, mergeLayers, totalMl, type Layer, type Recipe } from './model';
 
+type Theme = 'dark' | 'light';
+
+function savedTheme(): Theme {
+  try {
+    return window.localStorage.getItem('brewprint-theme') === 'light' ? 'light' : 'dark';
+  } catch {
+    return 'dark';
+  }
+}
+
 function Breakdown({ layers }: { layers: readonly Layer[] }) {
   return <ol className="breakdown" aria-label="Ingredients, bottom to top">
     {mergeLayers(layers).map((layer, index) => <li key={index}>
@@ -15,6 +25,7 @@ function Breakdown({ layers }: { layers: readonly Layer[] }) {
 }
 
 export default function App() {
+  const [theme, setTheme] = useState<Theme>(savedTheme);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [selectedId, setSelectedId] = useState('latte');
   const [mode, setMode] = useState<'recipe' | 'builder'>('recipe');
@@ -31,6 +42,19 @@ export default function App() {
   const filled = totalMl(layers);
   const present = ingredientIds.filter(id => builder.additions.some(layer => layer.ingredient === id));
   const matchedRecipe = ready ? findMatchingRecipe(builder.additions, recipes) : undefined;
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  function changeTheme(next: Theme) {
+    setTheme(next);
+    try {
+      window.localStorage.setItem('brewprint-theme', next);
+    } catch {
+      // Theme selection remains available when browser storage is blocked.
+    }
+  }
 
   function changeMode(next: 'recipe' | 'builder') {
     setMode(next);
@@ -59,6 +83,14 @@ export default function App() {
     <header className="masthead">
       <a className="wordmark" href="/" aria-label="Brewprint home">Brewprint<span aria-hidden="true">.</span></a>
       <span className="header-note">THE MIDNIGHT ESPRESSO BAR</span>
+      <fieldset className="theme-choice">
+        <legend>Theme</legend>
+        {(['dark', 'light'] as const).map(option => <label key={option}>
+          <input type="radio" name="theme" value={option} checked={theme === option}
+            onChange={() => changeTheme(option)} />
+          {option === 'dark' ? 'Dark' : 'Light'}
+        </label>)}
+      </fieldset>
       <span className="header-edition">EST. 2026</span>
     </header>
     <main>

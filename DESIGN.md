@@ -18,6 +18,17 @@ colors:
   water: "#86b8be"
   milk: "#efd3a3"
   foam: "#fff0d5"
+lightColors:
+  ink: "#2b2119"
+  paper: "#f6f0e6"
+  surface: "#ebe1d2"
+  muted: "#65584b"
+  line: "#a89986"
+  accent: "#704719"
+  accentInk: "#fff7ec"
+  brass: "#765527"
+  burgundy: "#693442"
+  glass: "#9b835f"
 typography:
   display: { fontFamily: 'Georgia, Cambria, serif', fontSize: 64px, lineHeight: 70.4px, fontWeight: 400 }
   title: { fontFamily: 'Georgia, Cambria, serif', fontSize: 28px, lineHeight: 35px, fontWeight: 400 }
@@ -30,10 +41,12 @@ rounded: { sm: 8px, md: 16px, pill: 999px }
 # Brewprint espresso bar
 
 Default dark: near-black walnut, warm ivory lettering, restrained burgundy and
-brass. One original glass cutaway cup is centered in a softly lit scene; drink
-choices sit directly beneath it. No repeating cup thumbnails or dashboard
-panels. System serif headings and system sans-serif body text. No font CDNs,
-stock assets, or third-party image dependencies.
+brass. The labeled Theme radio group offers a complementary light palette and
+remembers an explicit choice in browser storage when available; storage failure
+does not disable switching. One original glass cutaway cup is centered in a
+softly lit scene; drink choices sit directly beneath it. No repeating cup
+thumbnails or dashboard panels. System serif headings and system sans-serif
+body text. No font CDNs, stock assets, or third-party image dependencies.
 
 ## Components
 
@@ -53,6 +66,9 @@ Patterns live in `.agents/design/components.jsonc`.
 - Mode switch: House menu / Build your own, two native pressed-state buttons.
   Both modes share the single central cup. Browsing shows recipes but preserves
   the custom build in memory; only "Use this recipe" replaces that build.
+- Theme choice: labeled native Dark / Light radio buttons in the masthead.
+  Dark is the first-visit default regardless of system appearance; theme colors
+  retain the same recipe and cup composition.
 - Tray: original SVG ingredient icons beside the cup on its right, leaving
   the callouts on the left. No rectangular ingredient cards. Each icon is a
   native button labeled "Add {ingredient}": drag it to pour, or activate it
