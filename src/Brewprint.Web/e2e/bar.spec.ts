@@ -53,8 +53,13 @@ test('theme choice supports keyboard selection, persistence, and readable contro
   const light = page.getByRole('radio', { name: 'Light' });
   await expect(dark).toBeChecked();
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
+  await expect(page.locator('.recipe-tile.selected .tile-name')).toHaveCSS('color', 'rgb(223, 183, 123)');
 
-  await dark.focus();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Tab');
+  await expect(dark).toBeFocused();
+  await expect(dark).toHaveCSS('outline-color', 'rgb(223, 183, 123)');
   await page.keyboard.press('ArrowRight');
   await expect(light).toBeChecked();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
